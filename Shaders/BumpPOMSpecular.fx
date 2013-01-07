@@ -19,11 +19,13 @@ float parallaxHeightOffset;
 
 float3 eyePos;
 
+AmbientLight ambientLight;
 DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 PointLight pointLights[MAX_POINT_LIGHTS];
 
 static const int minNumSamples = 8;
 static const int maxNumSamples = 40;
+static const float occlutionShadowFactor = 0.5f;
 
 sampler ColorS = sampler_state
 {
@@ -94,8 +96,8 @@ float4 BumpPOMSpecularPS(float2 Tex : TEXCOORD0,
 	TBN[1] = Bitangent;
 	TBN[2] = Normal;
 	
-	float3x3 tangentToWorld = transpose(TBN);
-	float3 eyeDirT = mul(eyeDir, tangentToWorld);
+	float3x3 worldToTangent	= transpose(TBN);
+	float3 eyeDirT = mul(eyeDir, worldToTangent);
 	float3 parallaxDir = normalize(float3(eyeDirT.xy, 0));
 	float parallaxLength = sqrt(length(eyeDirT) * length(eyeDirT) - eyeDirT.z * eyeDirT.z) / eyeDirT.z;
 	parallaxDir *= parallaxLength;
@@ -143,8 +145,32 @@ float4 BumpPOMSpecularPS(float2 Tex : TEXCOORD0,
 	Normal = mul(Normal, TBN);
 	Normal = normalize(Normal);
 	
+	float2 lightRayBaseTex = Tex;
+	float temp = 0;
 	for(int i = 0; i < MAX_DIRECTIONAL_LIGHTS; ++i){
+	
+		float occlutionShadow = 1.0f;
 		float3 lightDir = normalize(-directionalLights[i].dir);
+		float3 lightDirT = mul(lightDir, worldToTangent);
+		float2 lightRay = 10.0f * lightDirT.xy * parallaxHeightScale;
+			
+		float sh0 = tex2Dgrad(HeightS, lightRayBaseTex, dx, dy).r;
+		float shA = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.88f, dx, dy).r - sh0 - 0.88f) * 1.0f * occlutionShadowFactor;
+		float sh9 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.77f, dx, dy).r - sh0 - 0.77f) * 2.0f * occlutionShadowFactor;
+		float sh8 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.66f, dx, dy).r - sh0 - 0.66f) * 4.0f * occlutionShadowFactor;
+		float sh7 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.55f, dx, dy).r - sh0 - 0.55f) * 6.0f * occlutionShadowFactor;
+		float sh6 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.44f, dx, dy).r - sh0 - 0.44f) * 8.0f * occlutionShadowFactor;
+		float sh5 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.33f, dx, dy).r - sh0 - 0.33f) * 10.0f * occlutionShadowFactor;
+		float sh4 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.22f, dx, dy).r - sh0 - 0.22f) * 12.0f * occlutionShadowFactor;
+			
+		occlutionShadow = saturate(1 - max(max(max(max(max(max(shA, sh9), sh8), sh7), sh6), sh5), sh4));
+		occlutionShadow = occlutionShadow * 0.6f + 0.4f;
+		
+		if(i == 0){	
+			temp = occlutionShadow;
+		}
+	
+	
 		float3 halfVec = normalize(lightDir + eyeDir);
 		
 		float diffuse = saturate(dot(lightDir, Normal)); 
@@ -154,12 +180,30 @@ float4 BumpPOMSpecularPS(float2 Tex : TEXCOORD0,
 		else
 			spec = 0;
 		
-		totalDiffuse += diffuse * directionalLights[i].color;
-		totalSpec += spec * directionalLights[i].color;
+		totalDiffuse += occlutionShadow * diffuse * directionalLights[i].color;
+		totalSpec += occlutionShadow * spec * directionalLights[i].color;
 	}
 	
 	for(int i = 0; i < MAX_POINT_LIGHTS; ++i){
+	
+		float occlutionShadow = 1.0f;
 		float3 lightDir = normalize(pointLights[i].position - posW);
+		float3 lightDirT = mul(lightDir, worldToTangent);
+		float2 lightRay = 10.0f * lightDirT.xy * parallaxHeightScale;
+			
+		float sh0 = tex2Dgrad(HeightS, lightRayBaseTex, dx, dy).r;
+		float shA = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.88f, dx, dy).r - sh0 - 0.88f) * 1.0f * occlutionShadowFactor;
+		float sh9 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.77f, dx, dy).r - sh0 - 0.77f) * 2.0f * occlutionShadowFactor;
+		float sh8 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.66f, dx, dy).r - sh0 - 0.66f) * 4.0f * occlutionShadowFactor;
+		float sh7 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.55f, dx, dy).r - sh0 - 0.55f) * 6.0f * occlutionShadowFactor;
+		float sh6 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.44f, dx, dy).r - sh0 - 0.44f) * 8.0f * occlutionShadowFactor;
+		float sh5 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.33f, dx, dy).r - sh0 - 0.33f) * 10.0f * occlutionShadowFactor;
+		float sh4 = (tex2Dgrad(HeightS, lightRayBaseTex + lightRay * 0.22f, dx, dy).r - sh0 - 0.22f) * 12.0f * occlutionShadowFactor;
+			
+		occlutionShadow = saturate(1 - max(max(max(max(max(max(shA, sh9), sh8), sh7), sh6), sh5), sh4));
+		occlutionShadow = occlutionShadow * 0.6f + 0.4f;
+		
+		//float3 lightDir = normalize(pointLights[i].position - posW);
 		float3 halfVec = normalize(lightDir + eyeDir);
 		
 		float diffuse = saturate(dot(lightDir, Normal));
@@ -176,8 +220,9 @@ float4 BumpPOMSpecularPS(float2 Tex : TEXCOORD0,
 		totalSpec += attenuation * spec * pointLights[i].color;
 	}
 	
-	float4 color = mtlDiffuse * totalDiffuse * tex2D(ColorS, Tex) + mtlSpec * totalSpec;
+	float4 color = (float4(ambientLight.color, 1.0f) + mtlDiffuse * totalDiffuse) * tex2D(ColorS, Tex) + mtlSpec * totalSpec;
 	return color;
+	return float4(temp, temp, temp, 1);
 }
 
 technique BumpPOMSpecular

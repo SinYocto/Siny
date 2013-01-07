@@ -15,6 +15,7 @@ float gloss;
 
 float3 eyePos;
 
+AmbientLight ambientLight;
 DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 PointLight pointLights[MAX_POINT_LIGHTS];
 
@@ -113,7 +114,7 @@ float4 BumpSpecularPS(float2 Tex : TEXCOORD0,
 		totalSpec += attenuation * spec * pointLights[i].color;
 	}
 	
-	float4 color = mtlDiffuse * totalDiffuse * tex2D(ColorS, Tex) + mtlSpec * totalSpec;
+	float4 color = (float4(ambientLight.color, 1.0f) + mtlDiffuse * totalDiffuse) * tex2D(ColorS, Tex) + mtlSpec * totalSpec;
 	return color;
 }
 

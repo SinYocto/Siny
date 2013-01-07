@@ -7,6 +7,11 @@ void Scene::AddObject(RenderableObject *object)
 
 }
 
+void Scene::SetAmbientLight(Vector3 color, float intensity)
+{
+	ambientLight = new AmbientLight(color, intensity);
+}
+
 void Scene::AddDirectionalLight(DirectionalLight *light)
 {
 	directionalLights.push_back(light);
@@ -34,10 +39,10 @@ void Scene::Update()
 {
 	DayTime::Update();
 
-	if(isColorSky)
+	/*if(isColorSky)
 		UpdateSkyColor();
 
-	cloud.GenerateCloudTex();
+	cloud.GenerateCloudTex();*/
 
 	if(directionalLightsDirty){
 
@@ -83,9 +88,8 @@ void Scene::Render()
 	D3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, backgroundColor, 1.0f, 0);
 	D3DDevice->BeginScene();
 
-	skyDome.Render();
-	cloud.Render();
-	//cloudDome.Render(true);
+	//skyDome.Render();
+	//cloud.Render();
 	
 	for(list<RenderableObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter)
 		(*iter)->Draw();

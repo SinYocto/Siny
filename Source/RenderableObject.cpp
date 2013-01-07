@@ -36,6 +36,7 @@ void RenderableObject::Draw()
 			specShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
 			specShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
 			specShader.effect->SetMatrix("matUVTransform", &(material.UVTransformMatrix()));
+			specShader.effect->SetRawValue("ambientLight", &(scene.ambientLight->intensity * scene.ambientLight->color), 0 , sizeof(Vector3));
 			specShader.effect->SetRawValue("directionalLights", directionalLightsData, 0, sizeof(directionalLightsData));
 			specShader.effect->SetRawValue("pointLights", pointLightsData, 0, sizeof(pointLightsData));
 			specShader.effect->SetTexture("colorTex", material.colorTex);
@@ -60,6 +61,7 @@ void RenderableObject::Draw()
 			bumpSpecShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
 			bumpSpecShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
 			bumpSpecShader.effect->SetMatrix("matUVTransform", &(material.UVTransformMatrix()));
+			bumpSpecShader.effect->SetRawValue("ambientLight", &(scene.ambientLight->intensity * scene.ambientLight->color), 0 , sizeof(Vector3));
 			bumpSpecShader.effect->SetRawValue("directionalLights", directionalLightsData, 0, sizeof(directionalLightsData));
 			bumpSpecShader.effect->SetRawValue("pointLights", pointLightsData, 0, sizeof(pointLightsData));
 			bumpSpecShader.effect->SetTexture("colorTex", material.colorTex);
@@ -85,6 +87,7 @@ void RenderableObject::Draw()
 			bumpHSpecShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
 			bumpHSpecShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
 			bumpHSpecShader.effect->SetMatrix("matUVTransform", &(material.UVTransformMatrix()));
+			bumpHSpecShader.effect->SetRawValue("ambientLight", &(scene.ambientLight->intensity * scene.ambientLight->color), 0 , sizeof(Vector3));
 			bumpHSpecShader.effect->SetRawValue("directionalLights", directionalLightsData, 0, sizeof(directionalLightsData));
 			bumpHSpecShader.effect->SetRawValue("pointLights", pointLightsData, 0, sizeof(pointLightsData));
 			bumpHSpecShader.effect->SetTexture("colorTex", material.colorTex);
@@ -112,6 +115,7 @@ void RenderableObject::Draw()
 			bumpPHSpecShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
 			bumpPHSpecShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
 			bumpPHSpecShader.effect->SetMatrix("matUVTransform", &(material.UVTransformMatrix()));
+			bumpPHSpecShader.effect->SetRawValue("ambientLight", &(scene.ambientLight->intensity * scene.ambientLight->color), 0 , sizeof(Vector3));
 			bumpPHSpecShader.effect->SetRawValue("directionalLights", directionalLightsData, 0, sizeof(directionalLightsData));
 			bumpPHSpecShader.effect->SetRawValue("pointLights", pointLightsData, 0, sizeof(pointLightsData));
 			bumpPHSpecShader.effect->SetTexture("colorTex", material.colorTex);
@@ -141,6 +145,7 @@ void RenderableObject::Draw()
 			bumpPSpecShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
 			bumpPSpecShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
 			bumpPSpecShader.effect->SetMatrix("matUVTransform", &(material.UVTransformMatrix()));
+			bumpPSpecShader.effect->SetRawValue("ambientLight", &(scene.ambientLight->intensity * scene.ambientLight->color), 0 , sizeof(Vector3));
 			bumpPSpecShader.effect->SetRawValue("directionalLights", directionalLightsData, 0, sizeof(directionalLightsData));
 			bumpPSpecShader.effect->SetRawValue("pointLights", pointLightsData, 0, sizeof(pointLightsData));
 			bumpPSpecShader.effect->SetTexture("colorTex", material.colorTex);
@@ -169,6 +174,7 @@ void RenderableObject::Draw()
 			bumpPOMSpecShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
 			bumpPOMSpecShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
 			bumpPOMSpecShader.effect->SetMatrix("matUVTransform", &(material.UVTransformMatrix()));
+			bumpPOMSpecShader.effect->SetRawValue("ambientLight", &(scene.ambientLight->intensity * scene.ambientLight->color), 0 , sizeof(Vector3));
 			bumpPOMSpecShader.effect->SetRawValue("directionalLights", directionalLightsData, 0, sizeof(directionalLightsData));
 			bumpPOMSpecShader.effect->SetRawValue("pointLights", pointLightsData, 0, sizeof(pointLightsData));
 			bumpPOMSpecShader.effect->SetTexture("colorTex", material.colorTex);

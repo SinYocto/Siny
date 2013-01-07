@@ -106,8 +106,8 @@ int AppSetup()
 	bumpPOMSpecShader.CreateEffect();
 	gizmoShader.CreateEffect();
 
-	mtlBrickPH.SetColorTex("./Textures/6133.jpg");
-	mtlBrickPH.SetBumpTex("./Textures/6133Bump.jpg");
+	mtlBrickPH.SetColorTex("./Textures/2711.jpg");
+	mtlBrickPH.SetBumpTex("./Textures/2711Bump.jpg");
 	mtlBrickPH.shiness = 0.3f;
 	mtlBrickPH.gloss = 50.0f;
 	mtlBrickPH.parallaxHeightScale = 0.02f;
@@ -117,9 +117,9 @@ int AppSetup()
 	mtlBrickPH.tilesU = 1.0f;
 	mtlBrickPH.tilesV = 1.0f;
 	
-	mtlBrickP.SetColorTex("./Textures/6133.jpg");
-	mtlBrickP.SetNormalTex("./Textures/6133Normal.jpg");
-	mtlBrickP.SetBumpTex("./Textures/6133Bump.jpg");
+	mtlBrickP.SetColorTex("./Textures/2711.jpg");
+	mtlBrickP.SetNormalTex("./Textures/2711Normal.jpg");
+	mtlBrickP.SetBumpTex("./Textures/2711Bump.jpg");
 	mtlBrickP.shiness = 0.3f;
 	mtlBrickP.gloss = 50.0f;
 	mtlBrickP.parallaxHeightScale = 0.02f;
@@ -129,9 +129,9 @@ int AppSetup()
 	mtlBrickP.tilesU = 1.0f;
 	mtlBrickP.tilesV = 1.0f;
 	
-	mtlBrickPOM.SetColorTex("./Textures/6133.jpg");
-	mtlBrickPOM.SetNormalTex("./Textures/6133Normal.jpg");
-	mtlBrickPOM.SetBumpTex("./Textures/6133Bump.jpg");
+	mtlBrickPOM.SetColorTex("./Textures/2711.jpg");
+	mtlBrickPOM.SetNormalTex("./Textures/2711Normal.jpg");
+	mtlBrickPOM.SetBumpTex("./Textures/2711Bump.jpg");
 	mtlBrickPOM.shiness = 0.3f;
 	mtlBrickPOM.gloss = 50.0f;
 	mtlBrickPOM.parallaxHeightScale = 0.02f;
@@ -141,9 +141,9 @@ int AppSetup()
 	mtlBrickPOM.tilesU = 1.0f;
 	mtlBrickPOM.tilesV = 1.0f;
 
-	mtlBrickB.SetColorTex("./Textures/6133.jpg");
-	mtlBrickB.SetNormalTex("./Textures/6133Normal.jpg");
-	mtlBrickB.SetBumpTex("./Textures/6133Bump.jpg");
+	mtlBrickB.SetColorTex("./Textures/2711.jpg");
+	mtlBrickB.SetNormalTex("./Textures/2711Normal.jpg");
+	mtlBrickB.SetBumpTex("./Textures/2711Bump.jpg");
 	mtlBrickB.shiness = 0.3f;
 	mtlBrickB.gloss = 50.0f;
 	mtlBrickB.heightMapScale = 4.0f;
@@ -151,14 +151,14 @@ int AppSetup()
 	mtlBrickB.tilesU = 1.0f;
 	mtlBrickB.tilesV = 1.0f;
 
-	mtlBrickN.SetColorTex("./Textures/6133.jpg");
-	mtlBrickN.SetNormalTex("./Textures/6133Normal.jpg");
+	mtlBrickN.SetColorTex("./Textures/2711.jpg");
+	mtlBrickN.SetNormalTex("./Textures/2711Normal.jpg");
 	mtlBrickN.shiness = 0.3f;
 	mtlBrickN.gloss = 50.0f;
 	mtlBrickN.tilesU = 1.0f;
 	mtlBrickN.tilesV = 1.0f;
 	
-	mtlBrickS.SetColorTex("./Textures/6133.jpg");
+	mtlBrickS.SetColorTex("./Textures/2711.jpg");
 	mtlBrickS.shiness = 0.3f;
 	mtlBrickS.gloss = 50.0f;
 	mtlBrickS.tilesU = 1.0f;
@@ -171,9 +171,10 @@ int AppSetup()
 	cube.CaculateBitangents();
 	cube.Build(XYZ_UV_TBN);
 	cube.position = Vector3(0, 0, 0);
+	//cube.scale = Vector3(10.0f, 10.0f, 10.0f);
 
 	// Renderable
-	cubie = RenderableObject(cube, BumpPHSpecular, mtlBrickP);
+	cubie = RenderableObject(cube, BumpSpecular, mtlBrickP);
 
 
 	// lights
@@ -195,13 +196,15 @@ int AppSetup()
 	scene.AddDirectionalLight(&dirLight1);
 	scene.AddPointLight(&pointLight0);
 	scene.AddPointLight(&pointLight1);
-
+	
+	//dirLight0.Disable();
 	dirLight1.Disable();
 	pointLight0.Disable();
 	pointLight1.Disable();
 
 	// sky
 	//scene.SetSkyDome("./Textures/Skydome4.png");
+	scene.SetAmbientLight(Vector3(1.0f, 1.0f, 1.0f), 0.2f);
 	scene.SetSkyDome();
 	scene.SetSkyColor(SkyDomeColor(0xff292A46, 0xff111217, 0xff111217), 
 		SkyDomeColor(0xff908E7E, 0xffF47413, 0xffE88877), 
@@ -225,8 +228,8 @@ int AppLoop()
 	Input::GetDIDState();
 
 	// CameraController
-	//FPCameraControl(Time::deltaTime);
-	HoverCameraControl(cubie.mesh.position, Time::deltaTime);
+	FPCameraControl(Time::deltaTime);
+	//HoverCameraControl(cubie.mesh.position, Time::deltaTime);
 
 	// cube - update
 	static float angleY = 0;

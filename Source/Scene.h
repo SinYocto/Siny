@@ -3,6 +3,7 @@
 
 #include"D3DUtility.h"
 #include"Camera.h"
+#include"AmbientLight.h"
 #include"DirectionalLight.h"
 #include"PointLight.h"
 #include"RenderableObject.h"
@@ -19,6 +20,7 @@ public:
 	Scene() 
 	{ numObjects = 0; numActiveDirectionalLights = 0; numActivePointLights = 0; directionalLightsDirty = true; pointLightsDirty = true; backgroundColor = 0xff1e90ff; }
 	void AddObject(RenderableObject *object);
+	void SetAmbientLight(Vector3 color, float intensity);
 	void AddDirectionalLight(DirectionalLight *light);
 	void AddPointLight(PointLight *light);
 	void SetSkyDome(string skyTexFile = "", float radius = 1000.0f)
@@ -57,6 +59,7 @@ public:
 	list<DirectionalLight*> directionalLights;
 	list<PointLight*> pointLights;
 	list<RenderableObject*> objects;
+	AmbientLight *ambientLight;
 
 	SkyDome skyDome;
 	SkyDomeColor skyColor[4];

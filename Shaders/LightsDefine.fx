@@ -14,3 +14,8 @@ struct PointLight
 	float3 position;
 	float3 atten;
 };
+
+struct AmbientLight
+{
+	float3 color;
+};
