@@ -3,6 +3,8 @@
 // °üº¬ÎÄ¼þ
 //-------------
 
+#include<fstream>
+
 #include"D3DUtility.h"
 #include"Utility.h"
 
@@ -35,6 +37,7 @@ PointLight pointLight1;
 // Renderable Object
 RenderableObject cubie;
 RenderableObject sphereRO;
+RenderableObject teapotRO;
 
 // Material
 Material mtlBrickP;     // use parallax mapping
@@ -106,6 +109,31 @@ int AppSetup()
 	SetLights();
 	SetSky();
 	scene.backgroundColor = 0xff1e90ff;
+
+
+	//std::fstream fin("./Models/teapot.obj");
+	//char line[100];
+	//char *lineWordPtr;
+	//fin.getline(line, 100);
+	////fin.getline(line, 100);
+	//printf("line 1:%s\n", line);
+	//lineWordPtr = strtok(line, " ");
+	//if(lineWordPtr && lineWordPtr[0] == 'v')
+	//	printf("v\n");
+	//else
+	//	printf("not v\n");
+
+	//int wordIx = 0;
+	//while(lineWordPtr != NULL){
+	//	if(wordIx == 0)
+	//		printf("word%d:%s\n", wordIx, lineWordPtr);
+	//	else
+	//		printf("word%d:%f\n", wordIx, atof(lineWordPtr));
+
+	//	wordIx++;
+	//	lineWordPtr = strtok(NULL, " ");
+	//}
+
 
 	return 1;
 }
@@ -417,32 +445,44 @@ void SetMaterials()
 void SetMeshes()
 {
 	Cube cube;
-	cube.CaculateNormals();
-	cube.CaculateTangents();
-	cube.CaculateBitangents();
+	cube.CalculateNormals();
+	cube.CalculateTangents();
+	cube.CalculateBitangents();
 	cube.Build(XYZ_UV_TBN);
 	cube.position = Vector3(0, 0, 0);
 
 	cubie = RenderableObject(cube, BumpSpecular, mtlBrickP);
 	scene.AddObject(&cubie);
 
-	/*Sphere sphere(1, 24, 16);
-	sphere.CaculateNormals();
-	sphere.CaculateTangents();
-	sphere.CaculateBitangents();
+	Sphere sphere(1, 24, 16);
+	sphere.CalculateNormals();
+	sphere.CalculateTangents();
+	sphere.CalculateBitangents();
 	sphere.Build(XYZ_UV_TBN);
 	sphere.position = Vector3(4, 0, 0);
 
 	sphereRO = RenderableObject(sphere, BumpPOMSpecular, mtlBrickPOM);
-	scene.AddObject(&sphereRO);*/
+	scene.AddObject(&sphereRO);
 
-	Sphere sphere(1, 24, 16);
-	sphere.CaculateNormals();
+	/*Sphere sphere(1, 24, 16);
+	sphere.CalculateNormals();
 	sphere.Build(XYZ_N);
 	sphere.position = Vector3(4, 0, 0);
 
 	sphereRO = RenderableObject(sphere, CubeEM, mtlCubeMap);
-	scene.AddObject(&sphereRO);
+	scene.AddObject(&sphereRO);*/
+
+	
+	Mesh teapot;
+	teapot.LoadDataFromFile("./Models/teapot.obj", OBJ);
+	teapot.CalculateUVs(SphereUV);
+	teapot.CalculateNormals();
+	teapot.Build(XYZ_N);
+	teapot.scale = Vector3(0.01f, 0.01f, 0.01f);
+	teapot.position = Vector3(-4, 0, 0);
+
+	teapotRO = RenderableObject(teapot, CubeEM, mtlCubeMap);
+	scene.AddObject(&teapotRO);
 
 }
 

@@ -8,32 +8,32 @@ void Gizmo::Build()
 	axisZ.Build(Vector3::Zero, Vector3(0, 0, 1), D3DXCOLOR(0, 0, 1, 1), 4.0f);*/
 
 	axisX = Cylinder(0.02f, 0.02f, 1.0f, 12, 8, D3DXCOLOR(1, 0, 0, 1));
-	axisX.CaculateNormals();
+	axisX.CalculateNormals();
 	axisX.Build(XYZ_N);
 	axisX.rotation = Quaternion(0, 0, -PI/2);
 	
 	axisY = Cylinder(0.02f, 0.02f, 1.0f, 12, 8, D3DXCOLOR(0, 1, 0, 1));
-	axisY.CaculateNormals();
+	axisY.CalculateNormals();
 	axisY.Build(XYZ_N);
 	
 	axisZ = Cylinder(0.02f, 0.02f, 1.0f, 12, 8, D3DXCOLOR(0, 0, 1, 1));
-	axisZ.CaculateNormals();
+	axisZ.CalculateNormals();
 	axisZ.Build(XYZ_N);
 	axisZ.rotation = Quaternion(PI/2, 0, 0);
 
 	coneX = Cylinder(0.0f, 0.08f, 0.2f, 12, 8, D3DXCOLOR(1, 0, 0, 1));
-	coneX.CaculateNormals();
+	coneX.CalculateNormals();
 	coneX.Build(XYZ_N);
 	coneX.position = Vector3(1, 0, 0);
 	coneX.rotation = Quaternion(0, 0, -PI/2);
 		
 	coneY = Cylinder(0.0f, 0.08f, 0.2f, 12, 8, D3DXCOLOR(0, 1, 0, 1));
-	coneY.CaculateNormals();
+	coneY.CalculateNormals();
 	coneY.Build(XYZ_N);
 	coneY.position = Vector3(0, 1, 0);
 		
 	coneZ = Cylinder(0.0f, 0.08f, 0.2f, 12, 8, D3DXCOLOR(0, 0, 1, 0));
-	coneZ.CaculateNormals();
+	coneZ.CalculateNormals();
 	coneZ.Build(XYZ_N);
 	coneZ.position = Vector3(0, 0, 1);
 	coneZ.rotation = Quaternion(PI/2, 0, 0);

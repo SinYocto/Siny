@@ -4,8 +4,13 @@
 #include"D3DUtility.h"
 #include"Object.h"
 #include<map>
+#include<vector>
 
 using namespace std;
+
+
+enum UVMappingMode { SphereUV };
+enum MeshFileFormat { OBJ };
 
 class Mesh : public Object
 {
@@ -14,17 +19,22 @@ public:
 	Mesh(const Mesh &mesh);
 	Mesh operator=(const Mesh &mesh);
 	~Mesh();
+	void LoadDataFromFile(string filename, MeshFileFormat format);
 	void Build(VertexType type);
 	void CreateVertexBuffer(int nVertices);
 	void CreateIndexBuffer(int nIndices);
 	void SetVertexDeclaration();
 	D3DXMATRIX LocalToWorldMatrix();
-	void CaculateNormals();
-	void CaculateTangents();
-	void CaculateBitangents();
+	void CalculateNormals();
+	void CalculateTangents();
+	void CalculateBitangents();
+	void CalculateUVs(UVMappingMode uvMode);
 
 	void SetStream();
 	void Draw();
+private:
+	void OBJParseLine(char *line, vector<Vector3> &filePosData, vector<WORD> &fileIndexData);
+
 public:
 	int numVertices;
 	int numTriangles;

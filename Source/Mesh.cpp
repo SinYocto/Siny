@@ -1,4 +1,5 @@
 #include"Mesh.h"
+#include<fstream>
 
 
 Mesh::Mesh()
@@ -235,7 +236,7 @@ void Mesh::SetStream()
 	D3DDevice->SetIndices(indexBuffer);
 }
 
-void Mesh::CaculateNormals()
+void Mesh::CalculateNormals()
 {
 	for(int i = 0; i < numVertices; ++i){
 		normalData[i] = Vector3::Zero;
@@ -267,7 +268,7 @@ void Mesh::CaculateNormals()
 	}
 }
 
-void Mesh::CaculateTangents()
+void Mesh::CalculateTangents()
 {
 	for(int i = 0; i < numVertices; ++i){
 		tangentData[i] = Vector3::Zero;
@@ -303,7 +304,7 @@ void Mesh::CaculateTangents()
 	}
 }
 
-void Mesh::CaculateBitangents()
+void Mesh::CalculateBitangents()
 {
 	for(int i = 0; i < numTriangles; ++i){
 		Vector3 normal = normalData[indexData[3*i + 0]];
@@ -315,5 +316,103 @@ void Mesh::CaculateBitangents()
 		bitangentData[indexData[3*i + 0]] = bitangent;
 		bitangentData[indexData[3*i + 1]] = bitangent;
 		bitangentData[indexData[3*i + 2]] = bitangent;
+	}
+}
+
+void Mesh::CalculateUVs(UVMappingMode uvMode)
+{
+	switch(uvMode){
+	case SphereUV:
+		{
+			for(int i = 0; i < numVertices; ++i){
+				Vector3 posDir = positionData[i].normalized();
+				float u = (atan2(posDir.z, posDir.x) + PI) / (2*PI);
+				float v = -0.5f * (posDir.y - 1.0f);
+				uvData[i] = Vector2(u, v);
+			}
+			break;
+		}
+	}
+}
+
+
+void Mesh::LoadDataFromFile(string filename, MeshFileFormat format)
+{
+	fstream fin(filename.c_str());
+
+	switch(format){
+	case OBJ:
+		{
+			vector<Vector3> filePosData;
+			vector<WORD> fileIndexData;
+
+			char line[100];
+			while(!fin.eof()){
+				fin.getline(line, 100);
+				OBJParseLine(line, filePosData, fileIndexData);
+			}
+
+			numVertices = filePosData.size();
+			numTriangles = fileIndexData.size() / 3;
+
+			positionData = new Vector3[numVertices];
+			uvData = new Vector2[numVertices];
+			normalData = new Vector3[numVertices];
+			tangentData = new Vector3[numVertices];
+			bitangentData = new Vector3[numVertices];
+			indexData = new WORD[3*numTriangles];
+
+			for(int i = 0; i < numVertices; ++i){
+				positionData[i] = filePosData[i];
+			}
+
+			for(int i = 0; i < 3*numTriangles; ++i){
+				indexData[i] = fileIndexData[i];
+			}
+
+			break;
+		}
+	}
+}
+
+
+void Mesh::OBJParseLine(char *line, vector<Vector3> &filePosData, vector<WORD> &fileIndexData)
+{
+
+	char *lineWordPtr;
+	lineWordPtr = strtok(line, " ");
+	if(!lineWordPtr)
+		return;
+
+	switch(lineWordPtr[0]){
+	case '#':
+		return;
+		break;
+	case 'v':
+		{
+			Vector3 pos;
+
+			lineWordPtr = strtok(NULL, " ");
+			pos.x = atof(lineWordPtr);
+			lineWordPtr = strtok(NULL, " ");
+			pos.y = atof(lineWordPtr);
+			lineWordPtr = strtok(NULL, " ");
+			pos.z = atof(lineWordPtr);
+
+			filePosData.push_back(pos);
+			break;
+		}
+	case 'f':
+		{
+			lineWordPtr = strtok(NULL, " ");
+			fileIndexData.push_back(atoi(lineWordPtr) - 1);
+			lineWordPtr = strtok(NULL, " ");
+			fileIndexData.push_back(atoi(lineWordPtr) - 1);
+			lineWordPtr = strtok(NULL, " ");
+			fileIndexData.push_back(atoi(lineWordPtr) - 1);
+			break;
+		}
+	default:
+		break;
 	}
 }
