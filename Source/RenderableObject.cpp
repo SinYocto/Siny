@@ -196,6 +196,24 @@ void RenderableObject::Draw()
 			bumpPOMSpecShader.effect->End();
 
 			break;
+		}			 
+						  		
+		case CubeEM:{
+			cubeEMShader.effect->SetTechnique("CubeEM");
+			cubeEMShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
+			cubeEMShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
+			cubeEMShader.effect->SetTexture("cubeTex", material.cubeTex);
+			cubeEMShader.effect->SetRawValue("eyePos", &(scene.mainCamera.position), 0, sizeof(Vector3));
+
+			cubeEMShader.effect->Begin(0, 0);
+			cubeEMShader.effect->BeginPass(0);
+
+			mesh.Draw();
+
+			cubeEMShader.effect->EndPass();
+			cubeEMShader.effect->End();
+
+			break;
 		}
 	}
 

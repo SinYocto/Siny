@@ -13,6 +13,7 @@ public:
 	void SetColorTex(string filename);
 	void SetNormalTex(string filename);
 	void SetBumpTex(string filename);
+	void SetCubeTex(string filenamePX, string filenameNX, string filenamePY, string filenameNY, string filenamePZ, string filenameNZ);
 	D3DXMATRIX UVTransformMatrix();
 public:
 	D3DXCOLOR diffuse;
@@ -31,10 +32,13 @@ public:
 
 	float parallaxHeightScale;
 	float parallaxHeightOffset;
+
+	int cubeTexSize;
 	
 	IDirect3DTexture9 *colorTex;
 	IDirect3DTexture9 *normalTex;
 	IDirect3DTexture9 *bumpTex;
+	IDirect3DCubeTexture9 *cubeTex;
 };
 
 #endif

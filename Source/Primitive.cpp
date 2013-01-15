@@ -184,6 +184,11 @@ Sphere::Sphere(float r, int sw, int sh)
 	float deltaPhi = PI / segmentsH;
 
 	for(int i = 0; i <= segmentsH; ++i){
+
+		// normalParis pair the verts with the same pos and normal, can be used to calculate smooth normal 
+		normalPairs[i*(segmentsW+1)] = i*(segmentsW+1) + segmentsW;
+		normalPairs[i*(segmentsW+1) + segmentsW] = i*(segmentsW+1);
+
 		float circleHeight = - radius * cos(i*deltaPhi);
 		float circleRadius = sqrt(radius * radius - circleHeight * circleHeight);
 		for(int j = 0; j <= segmentsW; ++j){
@@ -197,12 +202,6 @@ Sphere::Sphere(float r, int sw, int sh)
 			uv[i*(segmentsW+1) + j] = Vector2(u, v);
 		}
 	}
-	
-	/*for(int i = 0; i <= segmentsH; ++i){
-		for(int j = 0; j <= segmentsW; ++j){
-
-		}
-	}*/
 
 	for(int i = 0; i < segmentsH; ++i){
 		for(int j = 0; j < segmentsW; ++j){

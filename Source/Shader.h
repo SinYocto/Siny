@@ -6,7 +6,7 @@
 
 using namespace std;
 
-enum ShadingMethod { Diffuse, Specular, BumpSpecular, BumpHSpecular, BumpPHSpecular, BumpPSpecular, BumpPOMSpecular };
+enum ShadingMethod { Diffuse, Specular, BumpSpecular, BumpHSpecular, BumpPHSpecular, BumpPSpecular, BumpPOMSpecular, CubeEM };
 
 class Shader{
 public:
@@ -26,5 +26,6 @@ extern Shader bumpPHSpecShader;
 extern Shader bumpPSpecShader;
 extern Shader bumpPOMSpecShader;
 extern Shader gizmoShader;
+extern Shader cubeEMShader;
 
 #endif

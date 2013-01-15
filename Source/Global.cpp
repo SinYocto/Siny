@@ -23,6 +23,7 @@ Shader bumpPHSpecShader("./Shaders/BumpPHSpecular.fx");
 Shader bumpPSpecShader("./Shaders/BumpPSpecular.fx");
 Shader bumpPOMSpecShader("./Shaders/BumpPOMSpecular.fx");
 Shader gizmoShader("./Shaders/Gizmo.fx");
+Shader cubeEMShader("./Shaders/CubeEM.fx");
 
 DirectionalLightData directionalLightsData[MAX_DIRECTIONAL_LIGHTS];
 PointLightData pointLightsData[MAX_POINT_LIGHTS];

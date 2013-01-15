@@ -33,6 +33,8 @@ Mesh::Mesh(const Mesh &mesh)
 	vertexType = mesh.vertexType;
 	sizeofVertex = mesh.sizeofVertex;
 
+	normalPairs = mesh.normalPairs;
+
 }
 
 Mesh Mesh::operator=(const Mesh &mesh)
@@ -58,6 +60,8 @@ Mesh Mesh::operator=(const Mesh &mesh)
 	vertexDecl = mesh.vertexDecl;
 	vertexType = mesh.vertexType;
 	sizeofVertex = mesh.sizeofVertex;
+
+	normalPairs = mesh.normalPairs;
 
 	return *this;
 }
@@ -248,14 +252,19 @@ void Mesh::CaculateNormals()
 		Vector3 normal = v0v1.Cross(v0v2);
 		normal.normalize();
 
-		normalData[indexData[3*i + 0]] = normal;
-		normalData[indexData[3*i + 1]] = normal;
-		normalData[indexData[3*i + 2]] = normal;
+		for(int k = 0; k < 3; ++k){
+			normalData[indexData[3*i + k]] = normalData[indexData[3*i + k]] + normal;
+
+			// using normalPairs to find the the vert with the same normal
+			map<int, int>::iterator iter = normalPairs.find(indexData[3*i + k]);
+			if(iter != normalPairs.end())
+				normalData[iter->second] = normalData[iter->second] + normal;
+		}
 	}
 
-	/*for(int i = 0; i < numVertices; ++i){
+	for(int i = 0; i < numVertices; ++i){
 		normalData[i].normalize();
-	}*/
+	}
 }
 
 void Mesh::CaculateTangents()

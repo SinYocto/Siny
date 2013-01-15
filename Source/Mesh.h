@@ -3,6 +3,9 @@
 
 #include"D3DUtility.h"
 #include"Object.h"
+#include<map>
+
+using namespace std;
 
 class Mesh : public Object
 {
@@ -35,6 +38,8 @@ public:
 	IDirect3DIndexBuffer9*  indexBuffer;
 
 	IDirect3DVertexDeclaration9 *vertexDecl;
+
+	map<int, int> normalPairs;
 
 	void *vertexData;
 	Vector3	*positionData;

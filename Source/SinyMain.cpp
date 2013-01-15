@@ -34,6 +34,7 @@ PointLight pointLight1;
 
 // Renderable Object
 RenderableObject cubie;
+RenderableObject sphereRO;
 
 // Material
 Material mtlBrickP;     // use parallax mapping
@@ -42,6 +43,7 @@ Material mtlBrickPH;    // use parallax mapping(normal from heightMap)
 Material mtlBrickB;     // use bump mapping
 Material mtlBrickN;     // use normal mapping
 Material mtlBrickS;     // use smiple Specular
+Material mtlCubeMap;	
 
 
 bool windowed = true;
@@ -65,6 +67,12 @@ int AppDestory();
 void FPCameraControl(float deltaTime);
 void HoverCameraControl(Vector3 targetPos, float deltaTime);
 
+void SetCamera();
+void SetShaders();
+void SetMaterials();
+void SetMeshes();
+void SetLights();
+void SetSky();
 
 //------------
 // º¯Êý¶¨Òå
@@ -91,130 +99,13 @@ int AppInit(HINSTANCE hInst)
  */
 int AppSetup()
 {
-	// camera
-	scene.mainCamera = Camera(PI/3, (float)screenWidth / screenHeight, 0.1f, 1000.0f);
-	scene.mainCamera.position = Vector3(0.0f, 2.0f, -10.0f);
-	scene.mainCamera.LookAt(Vector3::Zero);
-
-	// shader & material
-	diffuseShader.CreateEffect();
-	specShader.CreateEffect();
-	bumpSpecShader.CreateEffect();
-	bumpHSpecShader.CreateEffect();
-	bumpPSpecShader.CreateEffect();
-	bumpPHSpecShader.CreateEffect();
-	bumpPOMSpecShader.CreateEffect();
-	gizmoShader.CreateEffect();
-
-	mtlBrickPH.SetColorTex("./Textures/2711.jpg");
-	mtlBrickPH.SetBumpTex("./Textures/2711Bump.jpg");
-	mtlBrickPH.shiness = 0.3f;
-	mtlBrickPH.gloss = 50.0f;
-	mtlBrickPH.parallaxHeightScale = 0.02f;
-	mtlBrickPH.parallaxHeightOffset = 0;
-	mtlBrickPH.heightMapScale = 4.0f;
-	mtlBrickPH.uvOffset = 1.0f/128.0f;
-	mtlBrickPH.tilesU = 1.0f;
-	mtlBrickPH.tilesV = 1.0f;
-	
-	mtlBrickP.SetColorTex("./Textures/2711.jpg");
-	mtlBrickP.SetNormalTex("./Textures/2711Normal.jpg");
-	mtlBrickP.SetBumpTex("./Textures/2711Bump.jpg");
-	mtlBrickP.shiness = 0.3f;
-	mtlBrickP.gloss = 50.0f;
-	mtlBrickP.parallaxHeightScale = 0.02f;
-	mtlBrickP.parallaxHeightOffset = 0;
-	mtlBrickP.heightMapScale = 4.0f;
-	mtlBrickP.uvOffset = 1.0f/128.0f;
-	mtlBrickP.tilesU = 1.0f;
-	mtlBrickP.tilesV = 1.0f;
-	
-	mtlBrickPOM.SetColorTex("./Textures/2711.jpg");
-	mtlBrickPOM.SetNormalTex("./Textures/2711Normal.jpg");
-	mtlBrickPOM.SetBumpTex("./Textures/2711Bump.jpg");
-	mtlBrickPOM.shiness = 0.3f;
-	mtlBrickPOM.gloss = 50.0f;
-	mtlBrickPOM.parallaxHeightScale = 0.02f;
-	mtlBrickPOM.parallaxHeightOffset = 0;
-	mtlBrickPOM.heightMapScale = 4.0f;
-	mtlBrickPOM.uvOffset = 1.0f/128.0f;
-	mtlBrickPOM.tilesU = 1.0f;
-	mtlBrickPOM.tilesV = 1.0f;
-
-	mtlBrickB.SetColorTex("./Textures/2711.jpg");
-	mtlBrickB.SetNormalTex("./Textures/2711Normal.jpg");
-	mtlBrickB.SetBumpTex("./Textures/2711Bump.jpg");
-	mtlBrickB.shiness = 0.3f;
-	mtlBrickB.gloss = 50.0f;
-	mtlBrickB.heightMapScale = 4.0f;
-	mtlBrickB.uvOffset = 1.0f/128.0f;
-	mtlBrickB.tilesU = 1.0f;
-	mtlBrickB.tilesV = 1.0f;
-
-	mtlBrickN.SetColorTex("./Textures/2711.jpg");
-	mtlBrickN.SetNormalTex("./Textures/2711Normal.jpg");
-	mtlBrickN.shiness = 0.3f;
-	mtlBrickN.gloss = 50.0f;
-	mtlBrickN.tilesU = 1.0f;
-	mtlBrickN.tilesV = 1.0f;
-	
-	mtlBrickS.SetColorTex("./Textures/2711.jpg");
-	mtlBrickS.shiness = 0.3f;
-	mtlBrickS.gloss = 50.0f;
-	mtlBrickS.tilesU = 1.0f;
-	mtlBrickS.tilesV = 1.0f;
-
-	// mesh
-	Cube cube;
-	cube.CaculateNormals();
-	cube.CaculateTangents();
-	cube.CaculateBitangents();
-	cube.Build(XYZ_UV_TBN);
-	cube.position = Vector3(0, 0, 0);
-	//cube.scale = Vector3(10.0f, 10.0f, 10.0f);
-
-	// Renderable
-	cubie = RenderableObject(cube, BumpSpecular, mtlBrickP);
-
-
-	// lights
-	dirLight0.color = Vector3(1.0f, 1.0f, 1.0f);
-	dirLight0.direction = Vector3(0, -0.5f, 1.0f);
-	dirLight1.color = Vector3(0, 0, 1.0f);
-	dirLight1.direction = Vector3(0, -0.5f, 1.0f);
-
-	pointLight0.color = Vector3(1.0f, 0, 0);
-	pointLight0.position = Vector3(4.0f, 0, 0);
-	pointLight1.color = Vector3(0, 1.0f, 0);
-	pointLight1.position = Vector3(0, 0, 4.0f);
-
-	// scene
+	SetCamera();
+	SetShaders();
+	SetMaterials();
+	SetMeshes();
+	SetLights();
+	SetSky();
 	scene.backgroundColor = 0xff1e90ff;
-	scene.AddObject(&cubie);
-
-	scene.AddDirectionalLight(&dirLight0);
-	scene.AddDirectionalLight(&dirLight1);
-	scene.AddPointLight(&pointLight0);
-	scene.AddPointLight(&pointLight1);
-	
-	//dirLight0.Disable();
-	dirLight1.Disable();
-	pointLight0.Disable();
-	pointLight1.Disable();
-
-	// sky
-	//scene.SetSkyDome("./Textures/Skydome4.png");
-	scene.SetAmbientLight(Vector3(1.0f, 1.0f, 1.0f), 0.2f);
-	scene.SetSkyDome();
-	scene.SetSkyColor(SkyDomeColor(0xff292A46, 0xff111217, 0xff111217), 
-		SkyDomeColor(0xff908E7E, 0xffF47413, 0xffE88877), 
-		SkyDomeColor(0xff6088BC, 0xffb4cdcd, 0xff8AB0D7),
-		SkyDomeColor(0xff9F9D8D, 0xffAE677B, 0xffF7711A));
-	scene.SetCloud();
-	//scene.SetCloudDome("./Textures/cloud.png", 200.0f);
-
-	DayTime::SetTimeScale(3600);
-	//DayTime::SetDayTime(0, 0, 0);
 
 	return 1;
 }
@@ -241,6 +132,9 @@ int AppLoop()
 		DayTime::SetTimeScale(DayTime::curDayTime.scale * 2);
 	if(Input::GetKeyDown(DIK_DOWN))
 		DayTime::SetTimeScale(DayTime::curDayTime.scale / 2);*/
+
+	//dirLight0.direction = Vector3(0, sin(angleY), cos(angleY));
+	//scene.directionalLightsDirty = true;
 
 	if(Input::GetKey(DIK_UP))
 		cubie.material.uvOffset += 0.0001f;
@@ -434,6 +328,161 @@ void HoverCameraControl(Vector3 targetPos, float deltaTime)
 	scene.mainCamera.position = targetPos + Vector3(x, y, z);
 	scene.mainCamera.LookAt(targetPos);
 
+}
+
+void SetCamera()
+{
+	scene.mainCamera = Camera(PI/3, (float)screenWidth / screenHeight, 0.1f, 1000.0f);
+	scene.mainCamera.position = Vector3(0.0f, 2.0f, -10.0f);
+	scene.mainCamera.LookAt(Vector3::Zero);
+}
+
+void SetShaders()
+{
+	diffuseShader.CreateEffect();
+	specShader.CreateEffect();
+	bumpSpecShader.CreateEffect();
+	bumpHSpecShader.CreateEffect();
+	bumpPSpecShader.CreateEffect();
+	bumpPHSpecShader.CreateEffect();
+	bumpPOMSpecShader.CreateEffect();
+	gizmoShader.CreateEffect();
+	cubeEMShader.CreateEffect();
+}
+
+void SetMaterials()
+{	
+	mtlBrickPH.SetColorTex("./Textures/2711.jpg");
+	mtlBrickPH.SetBumpTex("./Textures/2711Bump.jpg");
+	mtlBrickPH.shiness = 0.3f;
+	mtlBrickPH.gloss = 50.0f;
+	mtlBrickPH.parallaxHeightScale = 0.02f;
+	mtlBrickPH.parallaxHeightOffset = 0;
+	mtlBrickPH.heightMapScale = 4.0f;
+	mtlBrickPH.uvOffset = 1.0f/128.0f;
+	mtlBrickPH.tilesU = 1.0f;
+	mtlBrickPH.tilesV = 1.0f;
+	
+	mtlBrickP.SetColorTex("./Textures/2711.jpg");
+	mtlBrickP.SetNormalTex("./Textures/2711Normal.jpg");
+	mtlBrickP.SetBumpTex("./Textures/2711Bump.jpg");
+	mtlBrickP.shiness = 0.3f;
+	mtlBrickP.gloss = 50.0f;
+	mtlBrickP.parallaxHeightScale = 0.02f;
+	mtlBrickP.parallaxHeightOffset = 0;
+	mtlBrickP.heightMapScale = 4.0f;
+	mtlBrickP.uvOffset = 1.0f/128.0f;
+	mtlBrickP.tilesU = 1.0f;
+	mtlBrickP.tilesV = 1.0f;
+	
+	mtlBrickPOM.SetColorTex("./Textures/2711.jpg");
+	mtlBrickPOM.SetNormalTex("./Textures/2711Normal.jpg");
+	mtlBrickPOM.SetBumpTex("./Textures/2711Bump.jpg");
+	mtlBrickPOM.shiness = 0.3f;
+	mtlBrickPOM.gloss = 50.0f;
+	mtlBrickPOM.parallaxHeightScale = 0.02f;
+	mtlBrickPOM.parallaxHeightOffset = 0;
+	mtlBrickPOM.heightMapScale = 4.0f;
+	mtlBrickPOM.uvOffset = 1.0f/128.0f;
+	mtlBrickPOM.tilesU = 1.0f;
+	mtlBrickPOM.tilesV = 1.0f;
+
+	mtlBrickB.SetColorTex("./Textures/2711.jpg");
+	mtlBrickB.SetNormalTex("./Textures/2711Normal.jpg");
+	mtlBrickB.SetBumpTex("./Textures/2711Bump.jpg");
+	mtlBrickB.shiness = 0.3f;
+	mtlBrickB.gloss = 50.0f;
+	mtlBrickB.heightMapScale = 4.0f;
+	mtlBrickB.uvOffset = 1.0f/128.0f;
+	mtlBrickB.tilesU = 1.0f;
+	mtlBrickB.tilesV = 1.0f;
+
+	mtlBrickN.SetColorTex("./Textures/2711.jpg");
+	mtlBrickN.SetNormalTex("./Textures/2711Normal.jpg");
+	mtlBrickN.shiness = 0.3f;
+	mtlBrickN.gloss = 50.0f;
+	mtlBrickN.tilesU = 1.0f;
+	mtlBrickN.tilesV = 1.0f;
+	
+	mtlBrickS.SetColorTex("./Textures/2711.jpg");
+	mtlBrickS.shiness = 0.3f;
+	mtlBrickS.gloss = 50.0f;
+	mtlBrickS.tilesU = 1.0f;
+	mtlBrickS.tilesV = 1.0f;
+
+	mtlCubeMap.SetCubeTex("./Textures/Sunny1_right.jpg", "./Textures/Sunny1_left.jpg", "./Textures/Sunny1_up.jpg", "./Textures/Sunny1_down.jpg", "./Textures/Sunny1_back.jpg", "./Textures/Sunny1_front.jpg");
+	//mtlCubeMap.SetCubeTex("./Textures/Sunny1_left.jpg", "./Textures/Sunny1_right.jpg", "./Textures/Sunny1_down.jpg", "./Textures/Sunny1_up.jpg", "./Textures/Sunny1_back.jpg", "./Textures/Sunny1_front.jpg");
+}
+
+void SetMeshes()
+{
+	Cube cube;
+	cube.CaculateNormals();
+	cube.CaculateTangents();
+	cube.CaculateBitangents();
+	cube.Build(XYZ_UV_TBN);
+	cube.position = Vector3(0, 0, 0);
+
+	cubie = RenderableObject(cube, BumpSpecular, mtlBrickP);
+	scene.AddObject(&cubie);
+
+	/*Sphere sphere(1, 24, 16);
+	sphere.CaculateNormals();
+	sphere.CaculateTangents();
+	sphere.CaculateBitangents();
+	sphere.Build(XYZ_UV_TBN);
+	sphere.position = Vector3(4, 0, 0);
+
+	sphereRO = RenderableObject(sphere, BumpPOMSpecular, mtlBrickPOM);
+	scene.AddObject(&sphereRO);*/
+
+	Sphere sphere(1, 24, 16);
+	sphere.CaculateNormals();
+	sphere.Build(XYZ_N);
+	sphere.position = Vector3(4, 0, 0);
+
+	sphereRO = RenderableObject(sphere, CubeEM, mtlCubeMap);
+	scene.AddObject(&sphereRO);
+
+}
+
+void SetLights()
+{
+	dirLight0.color = Vector3(1.0f, 1.0f, 1.0f);
+	dirLight0.direction = Vector3(0, -0.5f, 1.0f);
+	dirLight1.color = Vector3(0, 0, 1.0f);
+	dirLight1.direction = Vector3(0, -0.5f, 1.0f);
+
+	pointLight0.color = Vector3(1.0f, 0, 0);
+	pointLight0.position = Vector3(4.0f, 0, 0);
+	pointLight1.color = Vector3(0, 1.0f, 0);
+	pointLight1.position = Vector3(0, 0, 4.0f);
+	
+	scene.AddDirectionalLight(&dirLight0);
+	scene.AddDirectionalLight(&dirLight1);
+	scene.AddPointLight(&pointLight0);
+	scene.AddPointLight(&pointLight1);
+	
+	//dirLight0.Disable();
+	dirLight1.Disable();
+	pointLight0.Disable();
+	pointLight1.Disable();
+}
+
+void SetSky()
+{
+	//scene.SetSkyDome("./Textures/Skydome4.png");
+	scene.SetAmbientLight(Vector3(1.0f, 1.0f, 1.0f), 0.2f);
+	scene.SetSkyDome();
+	scene.SetSkyColor(SkyDomeColor(0xff292A46, 0xff111217, 0xff111217), 
+		SkyDomeColor(0xff908E7E, 0xffF47413, 0xffE88877), 
+		SkyDomeColor(0xff6088BC, 0xffb4cdcd, 0xff8AB0D7),
+		SkyDomeColor(0xff9F9D8D, 0xffAE677B, 0xffF7711A));
+	scene.SetCloud();
+	//scene.SetCloudDome("./Textures/cloud.png", 200.0f);
+
+	DayTime::SetTimeScale(3600);
+	//DayTime::SetDayTime(0, 0, 0);
 }
 
 
