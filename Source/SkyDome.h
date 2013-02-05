@@ -116,8 +116,8 @@ public:
 			}
 		}
 
-		//WORD* indices = new WORD[3*numTriangles];
-		indexData = new WORD[3*numTriangles];
+		//DWORD* indices = new DWORD[3*numTriangles];
+		indexData = new DWORD[3*numTriangles];
 		for(int i = 0; i < segmentsH; ++i)
 		{
 			for(int j = 0; j < segmentsW; ++j)
@@ -194,7 +194,7 @@ public:
 	IDirect3DTexture9 *skyTex;
 
 	void *vertexData;
-	WORD *indexData;
+	DWORD *indexData;
 
 	IDirect3DVertexBuffer9* vertexBuffer;
 	IDirect3DIndexBuffer9*  indexBuffer;

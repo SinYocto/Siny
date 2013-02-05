@@ -4,9 +4,10 @@
 #include"D3DUtility.h"
 #include<string>
 
+
 using namespace std;
 
-enum ShadingMethod { Diffuse, Specular, BumpSpecular, BumpHSpecular, BumpPHSpecular, BumpPSpecular, BumpPOMSpecular, CubeEM };
+enum ShadingMethod { Diffuse, Specular, BumpSpecular, BumpHSpecular, BumpPHSpecular, BumpPSpecular, BumpPOMSpecular, CubeEM, CubeRefractEM, IrrEM, CubeMapping };
 
 class Shader{
 public:
@@ -27,5 +28,10 @@ extern Shader bumpPSpecShader;
 extern Shader bumpPOMSpecShader;
 extern Shader gizmoShader;
 extern Shader cubeEMShader;
+extern Shader cubeRefractEMShader;
+extern Shader irradianceEMShader;
+extern Shader cubeMappingShader;
+
+extern Shader terrainShader;
 
 #endif

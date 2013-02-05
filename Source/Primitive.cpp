@@ -64,7 +64,7 @@ Cube::Cube()
 	uv[22] = Vector2(0, 1);
 	uv[23] = Vector2(1, 1);
 
-	WORD* indices = new WORD[36];
+	DWORD* indices = new DWORD[36];
 	for(int i = 0; i < 6; i++){
 		indices[6*i + 0] = 4*i;
 		indices[6*i + 1] = 4*i + 1;
@@ -101,7 +101,7 @@ Cylinder::Cylinder(float topR, float bottomR, float cylinderHeight, int segments
 	numTriangles = 2*segmentsW + 2*segmentsW*segmentsH;
 
 	Vector3 *pos = new Vector3[numVertices];
-	WORD* indices = new WORD[3*numTriangles];
+	DWORD* indices = new DWORD[3*numTriangles];
 
 	// ¶¥Ô²Ãæ
 	pos[0] = Vector3(0, height, 0);
@@ -178,7 +178,7 @@ Sphere::Sphere(float r, int sw, int sh)
 	
 	Vector3 *pos = new Vector3[numVertices];
 	Vector2 *uv = new Vector2[numVertices];
-	WORD* indices = new WORD[3*numTriangles];
+	DWORD* indices = new DWORD[3*numTriangles];
 
 	float deltaTheta = 2*PI / segmentsW;
 	float deltaPhi = PI / segmentsH;

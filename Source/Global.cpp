@@ -4,6 +4,7 @@
 #include"DirectionalLight.h"
 #include"PointLight.h"
 #include"Input.h"
+#include"IrradianceEM.h"
 
 HWND HWnd = NULL;
 IDirect3D9 *D3D = NULL;
@@ -24,6 +25,15 @@ Shader bumpPSpecShader("./Shaders/BumpPSpecular.fx");
 Shader bumpPOMSpecShader("./Shaders/BumpPOMSpecular.fx");
 Shader gizmoShader("./Shaders/Gizmo.fx");
 Shader cubeEMShader("./Shaders/CubeEM.fx");
+Shader cubeRefractEMShader("./Shaders/CubeRefractEM.fx");
+Shader irradianceEMShader("./Shaders/IrradianceEM.fx");
+Shader cubeMappingShader("./Shaders/CubeMapping.fx");
+
+Shader terrainShader("./Shaders/Terrain.fx");
+
 
 DirectionalLightData directionalLightsData[MAX_DIRECTIONAL_LIGHTS];
 PointLightData pointLightsData[MAX_POINT_LIGHTS];
+
+
+IrradianceEM irrEM;

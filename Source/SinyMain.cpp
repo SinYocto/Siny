@@ -21,6 +21,9 @@
 #include"Scene.h"
 #include"Input.h"
 #include"Gizmo.h"
+#include"IrradianceEM.h"
+#include"SkyBox.h"
+#include"Terrain.h"
 
 
 //--------------
@@ -34,10 +37,16 @@ DirectionalLight dirLight1;
 PointLight pointLight0;
 PointLight pointLight1;
 
+// Terrain
+Terrain terrain;
+
 // Renderable Object
 RenderableObject cubie;
 RenderableObject sphereRO;
 RenderableObject teapotRO;
+RenderableObject irrTeapotRO;
+
+RenderableObject terrainRO;
 
 // Material
 Material mtlBrickP;     // use parallax mapping
@@ -46,7 +55,12 @@ Material mtlBrickPH;    // use parallax mapping(normal from heightMap)
 Material mtlBrickB;     // use bump mapping
 Material mtlBrickN;     // use normal mapping
 Material mtlBrickS;     // use smiple Specular
+Material mtlBrickD;     // diffuse
 Material mtlCubeMap;	
+
+Material mtlTerrain;
+
+//IrradianceEM irrEM;
 
 
 bool windowed = true;
@@ -73,6 +87,7 @@ void HoverCameraControl(Vector3 targetPos, float deltaTime);
 void SetCamera();
 void SetShaders();
 void SetMaterials();
+void SetTerrain();
 void SetMeshes();
 void SetLights();
 void SetSky();
@@ -105,34 +120,17 @@ int AppSetup()
 	SetCamera();
 	SetShaders();
 	SetMaterials();
+	SetTerrain();
 	SetMeshes();
 	SetLights();
 	SetSky();
 	scene.backgroundColor = 0xff1e90ff;
 
+	/*irrEM.Init();
+	irrEM.BuildParaboloidWeightTexs();
+	irrEM.BuildLambertIrradianceTexs();
+	irrEM.BuildPhongIrradianceTexs();*/
 
-	//std::fstream fin("./Models/teapot.obj");
-	//char line[100];
-	//char *lineWordPtr;
-	//fin.getline(line, 100);
-	////fin.getline(line, 100);
-	//printf("line 1:%s\n", line);
-	//lineWordPtr = strtok(line, " ");
-	//if(lineWordPtr && lineWordPtr[0] == 'v')
-	//	printf("v\n");
-	//else
-	//	printf("not v\n");
-
-	//int wordIx = 0;
-	//while(lineWordPtr != NULL){
-	//	if(wordIx == 0)
-	//		printf("word%d:%s\n", wordIx, lineWordPtr);
-	//	else
-	//		printf("word%d:%f\n", wordIx, atof(lineWordPtr));
-
-	//	wordIx++;
-	//	lineWordPtr = strtok(NULL, " ");
-	//}
 
 
 	return 1;
@@ -197,6 +195,12 @@ int AppLoop()
 		cubie.material = mtlBrickPOM;
 	}
 
+
+	
+	/*irrEM.RenderParaboloidEnvMap();
+	irrEM.ProjectParaboloidToSH();
+	irrEM.EvaluateConvolvedSH(IrradianceLambert);
+	irrEM.EvaluateConvolvedSH(IrradiancePhong);*/
 
 
 	//printf("cur Time: %d:%d:%d\n", DayTime::curDayTime.hour, DayTime::curDayTime.minute, DayTime::curDayTime.second);
@@ -376,6 +380,11 @@ void SetShaders()
 	bumpPOMSpecShader.CreateEffect();
 	gizmoShader.CreateEffect();
 	cubeEMShader.CreateEffect();
+	cubeRefractEMShader.CreateEffect();
+	irradianceEMShader.CreateEffect();
+	cubeMappingShader.CreateEffect();
+
+	terrainShader.CreateEffect();
 }
 
 void SetMaterials()
@@ -438,8 +447,36 @@ void SetMaterials()
 	mtlBrickS.tilesU = 1.0f;
 	mtlBrickS.tilesV = 1.0f;
 
-	mtlCubeMap.SetCubeTex("./Textures/Sunny1_right.jpg", "./Textures/Sunny1_left.jpg", "./Textures/Sunny1_up.jpg", "./Textures/Sunny1_down.jpg", "./Textures/Sunny1_back.jpg", "./Textures/Sunny1_front.jpg");
-	//mtlCubeMap.SetCubeTex("./Textures/Sunny1_left.jpg", "./Textures/Sunny1_right.jpg", "./Textures/Sunny1_down.jpg", "./Textures/Sunny1_up.jpg", "./Textures/Sunny1_back.jpg", "./Textures/Sunny1_front.jpg");
+	mtlBrickD.SetColorTex("./Textures/2711.jpg");
+	mtlBrickD.tilesU = 1.0f;
+	mtlBrickD.tilesV = 1.0f;
+	
+	mtlCubeMap.SetCubeTex("./Textures/indoor_right.jpg", "./Textures/indoor_left.jpg", "./Textures/indoor_up.jpg", "./Textures/indoor_down.jpg", "./Textures/indoor_front.jpg", "./Textures/indoor_back.jpg");
+	//mtlCubeMap.SetCubeTex("./Textures/Sunny1_left.jpg", "./Textures/Sunny1_right.jpg", "./Textures/Sunny1_up.jpg", "./Textures/Sunny1_down.jpg", "./Textures/Sunny1_front.jpg", "./Textures/Sunny1_back.jpg");
+
+	mtlTerrain.SetColorTex("./Textures/Grass_Hill.jpg");
+	mtlTerrain.tilesU = 30.0f;
+	mtlTerrain.tilesV = 30.0f;
+}
+
+void SetTerrain()
+{	
+	terrain.LoadFromHeightMap("./Textures/heightMap257_bit16.raw", 257);
+	terrain.BuildTerrain(200, 200, 20);
+	terrain.CalculateNormals();
+	//terrain.CalculateTangents();
+	//terrain.CalculateBitangents();
+	terrain.Build(XYZ_UV_N);
+	terrain.SetColorTexes("./Textures/Cliff.jpg", "./Textures/Grass_Hill.jpg", "./Textures/DirtGrass.jpg", "./Textures/Pebbles.jpg");
+	terrain.SetSplatMapTex("./Textures/splat.tga");
+	terrain.position = Vector3(0, 0, 0);
+	terrain.SetMtlParameters(30.0f, 30.0f);
+
+	scene.AddTerrain(&terrain);
+
+	//terrainRO = RenderableObject(terrain, Diffuse, mtlTerrain);
+	//terrainRO.displayMode = WireFrame;
+	//scene.AddObject(&terrainRO);
 }
 
 void SetMeshes()
@@ -449,9 +486,9 @@ void SetMeshes()
 	cube.CalculateTangents();
 	cube.CalculateBitangents();
 	cube.Build(XYZ_UV_TBN);
-	cube.position = Vector3(0, 0, 0);
+	cube.position = Vector3(-10, 20, 0);
 
-	cubie = RenderableObject(cube, BumpSpecular, mtlBrickP);
+	cubie = RenderableObject(cube, Diffuse, mtlBrickD);
 	scene.AddObject(&cubie);
 
 	Sphere sphere(1, 24, 16);
@@ -459,7 +496,7 @@ void SetMeshes()
 	sphere.CalculateTangents();
 	sphere.CalculateBitangents();
 	sphere.Build(XYZ_UV_TBN);
-	sphere.position = Vector3(4, 0, 0);
+	sphere.position = Vector3(-14, 20, 0);
 
 	sphereRO = RenderableObject(sphere, BumpPOMSpecular, mtlBrickPOM);
 	scene.AddObject(&sphereRO);
@@ -471,7 +508,6 @@ void SetMeshes()
 
 	sphereRO = RenderableObject(sphere, CubeEM, mtlCubeMap);
 	scene.AddObject(&sphereRO);*/
-
 	
 	Mesh teapot;
 	teapot.LoadDataFromFile("./Models/teapot.obj", OBJ);
@@ -479,17 +515,21 @@ void SetMeshes()
 	teapot.CalculateNormals();
 	teapot.Build(XYZ_N);
 	teapot.scale = Vector3(0.01f, 0.01f, 0.01f);
-	teapot.position = Vector3(-4, 0, 0);
+	teapot.position = Vector3(-18, 20, 0);
 
 	teapotRO = RenderableObject(teapot, CubeEM, mtlCubeMap);
 	scene.AddObject(&teapotRO);
+
+	/*teapot.position = Vector3(-8, 0, 0);
+	irrTeapotRO = RenderableObject(teapot, IrrEM, mtlCubeMap);
+	scene.AddObject(&irrTeapotRO);*/
 
 }
 
 void SetLights()
 {
 	dirLight0.color = Vector3(1.0f, 1.0f, 1.0f);
-	dirLight0.direction = Vector3(0, -0.5f, 1.0f);
+	dirLight0.direction = Vector3(0, -0.4f, 1.0f);
 	dirLight1.color = Vector3(0, 0, 1.0f);
 	dirLight1.direction = Vector3(0, -0.5f, 1.0f);
 
@@ -498,6 +538,7 @@ void SetLights()
 	pointLight1.color = Vector3(0, 1.0f, 0);
 	pointLight1.position = Vector3(0, 0, 4.0f);
 	
+
 	scene.AddDirectionalLight(&dirLight0);
 	scene.AddDirectionalLight(&dirLight1);
 	scene.AddPointLight(&pointLight0);
@@ -511,6 +552,9 @@ void SetLights()
 
 void SetSky()
 {
+	scene.SetAmbientLight(Vector3(1.0f, 1.0f, 1.0f), 0.2f);
+
+	/*
 	//scene.SetSkyDome("./Textures/Skydome4.png");
 	scene.SetAmbientLight(Vector3(1.0f, 1.0f, 1.0f), 0.2f);
 	scene.SetSkyDome();
@@ -523,6 +567,9 @@ void SetSky()
 
 	DayTime::SetTimeScale(3600);
 	//DayTime::SetDayTime(0, 0, 0);
+	*/
+	
+	scene.SetSkyBox("./Textures/Sunny1_right.jpg", "./Textures/Sunny1_left.jpg", "./Textures/Sunny1_up.jpg", "./Textures/Sunny1_down.jpg", "./Textures/Sunny1_front.jpg", "./Textures/Sunny1_back.jpg", 500.0f);
 }
 
 

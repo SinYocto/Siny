@@ -344,7 +344,7 @@ void Mesh::LoadDataFromFile(string filename, MeshFileFormat format)
 	case OBJ:
 		{
 			vector<Vector3> filePosData;
-			vector<WORD> fileIndexData;
+			vector<DWORD> fileIndexData;
 
 			char line[100];
 			while(!fin.eof()){
@@ -360,7 +360,7 @@ void Mesh::LoadDataFromFile(string filename, MeshFileFormat format)
 			normalData = new Vector3[numVertices];
 			tangentData = new Vector3[numVertices];
 			bitangentData = new Vector3[numVertices];
-			indexData = new WORD[3*numTriangles];
+			indexData = new DWORD[3*numTriangles];
 
 			for(int i = 0; i < numVertices; ++i){
 				positionData[i] = filePosData[i];
@@ -376,7 +376,7 @@ void Mesh::LoadDataFromFile(string filename, MeshFileFormat format)
 }
 
 
-void Mesh::OBJParseLine(char *line, vector<Vector3> &filePosData, vector<WORD> &fileIndexData)
+void Mesh::OBJParseLine(char *line, vector<Vector3> &filePosData, vector<DWORD> &fileIndexData)
 {
 
 	char *lineWordPtr;

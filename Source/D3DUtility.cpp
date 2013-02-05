@@ -160,12 +160,12 @@ void CreateVB(IDirect3DDevice9* d3dDevice,IDirect3DVertexBuffer9** vb, void* ver
 /** 
  * ´´½¨Ë÷Òý»º´æ
  */
-void CreateIB(IDirect3DDevice9* d3dDevice, IDirect3DIndexBuffer9** ib, WORD* indexData, int nIndices)
+void CreateIB(IDirect3DDevice9* d3dDevice, IDirect3DIndexBuffer9** ib, DWORD* indexData, int nIndices)
 {
 	BYTE* ptr;
-	d3dDevice->CreateIndexBuffer(sizeof(WORD)*nIndices, 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT, ib, 0);
+	d3dDevice->CreateIndexBuffer(sizeof(DWORD)*nIndices, 0, D3DFMT_INDEX32, D3DPOOL_DEFAULT, ib, 0);
 	(*ib)->Lock(0, 0, (void**)&ptr, 0);
-	memcpy(ptr, indexData, sizeof(WORD)*nIndices);
+	memcpy(ptr, indexData, sizeof(DWORD)*nIndices);
 	(*ib)->Unlock();
 }
 
@@ -207,4 +207,35 @@ D3DCOLOR ColorLerp(D3DCOLOR color1, D3DCOLOR color2, float factor)
 float Lerp(float value1, float value2, float factor)
 {
 	return (1-factor)*value1 + factor*value2;
+}
+
+
+void CreateCubeTextureFromFile(IDirect3DCubeTexture9 *&cubeTex, int cubeTexSize, string filenamePX, string filenameNX, string filenamePY, string filenameNY, string filenamePZ, string filenameNZ)
+{
+	if(cubeTex)
+		SAFE_RELEASE(cubeTex);
+
+	D3DDevice->CreateCubeTexture(cubeTexSize, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &cubeTex, NULL);
+
+	IDirect3DSurface9 *cubeTexSurf;
+
+	cubeTex->GetCubeMapSurface(D3DCUBEMAP_FACE_POSITIVE_X, 0, &cubeTexSurf);
+	D3DXLoadSurfaceFromFile(cubeTexSurf, NULL, NULL, filenamePX.c_str(), NULL, D3DX_DEFAULT, 0, NULL);
+	
+	cubeTex->GetCubeMapSurface(D3DCUBEMAP_FACE_NEGATIVE_X, 0, &cubeTexSurf);
+	D3DXLoadSurfaceFromFile(cubeTexSurf, NULL, NULL, filenameNX.c_str(), NULL, D3DX_DEFAULT, 0, NULL);
+	
+	cubeTex->GetCubeMapSurface(D3DCUBEMAP_FACE_POSITIVE_Y, 0, &cubeTexSurf);
+	D3DXLoadSurfaceFromFile(cubeTexSurf, NULL, NULL, filenamePY.c_str(), NULL, D3DX_DEFAULT, 0, NULL);
+	
+	cubeTex->GetCubeMapSurface(D3DCUBEMAP_FACE_NEGATIVE_Y, 0, &cubeTexSurf);
+	D3DXLoadSurfaceFromFile(cubeTexSurf, NULL, NULL, filenameNY.c_str(), NULL, D3DX_DEFAULT, 0, NULL);
+	
+	cubeTex->GetCubeMapSurface(D3DCUBEMAP_FACE_POSITIVE_Z, 0, &cubeTexSurf);
+	D3DXLoadSurfaceFromFile(cubeTexSurf, NULL, NULL, filenamePZ.c_str(), NULL, D3DX_DEFAULT, 0, NULL);
+	
+	cubeTex->GetCubeMapSurface(D3DCUBEMAP_FACE_NEGATIVE_Z, 0, &cubeTexSurf);
+	D3DXLoadSurfaceFromFile(cubeTexSurf, NULL, NULL, filenameNZ.c_str(), NULL, D3DX_DEFAULT, 0, NULL);
+
+	SAFE_RELEASE(cubeTexSurf);
 }

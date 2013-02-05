@@ -34,6 +34,7 @@ public:
 	float parallaxHeightOffset;
 
 	int cubeTexSize;
+	float etaRatio;
 	
 	IDirect3DTexture9 *colorTex;
 	IDirect3DTexture9 *normalTex;

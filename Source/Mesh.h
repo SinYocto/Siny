@@ -33,7 +33,7 @@ public:
 	void SetStream();
 	void Draw();
 private:
-	void OBJParseLine(char *line, vector<Vector3> &filePosData, vector<WORD> &fileIndexData);
+	void OBJParseLine(char *line, vector<Vector3> &filePosData, vector<DWORD> &fileIndexData);
 
 public:
 	int numVertices;
@@ -57,7 +57,7 @@ public:
 	Vector3 *normalData;
 	Vector3 *tangentData;
 	Vector3 *bitangentData;
-	WORD *indexData;
+	DWORD *indexData;
 };
 
 

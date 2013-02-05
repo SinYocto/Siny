@@ -5,11 +5,14 @@
 #include"d3d9.h"
 #include"d3dx9.h"
 #include"Input.h"
+#include<string>
 
+using namespace std;
 
 extern HWND HWnd;
 extern IDirect3D9 *D3D;
 extern IDirect3DDevice9 *D3DDevice;
+
 
 
 #define SAFE_RELEASE(p)			{ if(p) { (p)->Release(); (p)=NULL; } }
@@ -78,7 +81,9 @@ int	InitD3D(HINSTANCE hInstance, bool windowed, int screenWidth, int screenHeigh
 LRESULT CALLBACK WndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 void CreateVB(IDirect3DDevice9* d3dDevice, IDirect3DVertexBuffer9** vb, void* VertexData, int nVertexs, VertexType vertexType);
-void CreateIB(IDirect3DDevice9* d3dDevice, IDirect3DIndexBuffer9** ib, WORD* IndexData, int nIndices);
+void CreateIB(IDirect3DDevice9* d3dDevice, IDirect3DIndexBuffer9** ib, DWORD* IndexData, int nIndices);
+
+void CreateCubeTextureFromFile(IDirect3DCubeTexture9 *&cubeTex, int cubeTexSize, string filenamePX, string filenameNX, string filenamePY, string filenameNY, string filenamePZ, string filenameNZ);
 
 D3DCOLOR ColorLerp(D3DCOLOR color1, D3DCOLOR color2, float factor);
 float Lerp(float value1, float value2, float factor);

@@ -4,6 +4,7 @@
 #include"d3dx9.h"
 #include<math.h>
 
+
 #define PI 3.141592654f
 
 class Vector3
@@ -59,6 +60,6 @@ public:
 	float w,x,y,z;
 };
 
-
+unsigned int factorial(unsigned int value);
 
 #endif

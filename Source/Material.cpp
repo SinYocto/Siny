@@ -19,6 +19,7 @@ Material::Material()
 	parallaxHeightOffset = 0;
 
 	cubeTexSize = 256;
+	etaRatio = 1.0f / 1.3f;
 	
 	colorTex = NULL;
 	normalTex = NULL;

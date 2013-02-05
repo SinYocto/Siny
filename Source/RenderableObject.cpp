@@ -3,11 +3,15 @@
 //#include"Camera.h"
 #include"DirectionalLight.h"
 #include"PointLight.h"
+#include"IrradianceEM.h"
 
 void RenderableObject::Draw()
 {
 	mesh.SetStream();
 	mesh.SetVertexDeclaration();
+
+	if(displayMode == WireFrame)
+		D3DDevice->SetRenderState( D3DRS_FILLMODE, D3DFILL_WIREFRAME );
 
 	switch(shader){
 		case Diffuse:{
@@ -15,9 +19,12 @@ void RenderableObject::Draw()
 			diffuseShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
 			diffuseShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
 			diffuseShader.effect->SetMatrix("matUVTransform", &(material.UVTransformMatrix()));
+			diffuseShader.effect->SetRawValue("ambientLight", &(scene.ambientLight->intensity * scene.ambientLight->color), 0 , sizeof(Vector3));
 			diffuseShader.effect->SetRawValue("directionalLights", directionalLightsData, 0, sizeof(directionalLightsData));
 			diffuseShader.effect->SetRawValue("pointLights", pointLightsData, 0, sizeof(pointLightsData));
 			diffuseShader.effect->SetTexture("colorTex", material.colorTex);
+			//diffuseShader.effect->SetTexture("colorTex", irrEM.phongSHEval[0]);
+			//diffuseShader.effect->SetTexture("colorTex", irrEM.irradianceSHCoef);
 			diffuseShader.effect->SetRawValue("mtlDiffuse", &(material.diffuse), 0, sizeof(D3DXCOLOR));
 
 			diffuseShader.effect->Begin(0, 0);
@@ -203,6 +210,7 @@ void RenderableObject::Draw()
 			cubeEMShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
 			cubeEMShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
 			cubeEMShader.effect->SetTexture("cubeTex", material.cubeTex);
+			//cubeEMShader.effect->SetTexture("cubeTex", irrEM.diffCubeTex);
 			cubeEMShader.effect->SetRawValue("eyePos", &(scene.mainCamera.position), 0, sizeof(Vector3));
 
 			cubeEMShader.effect->Begin(0, 0);
@@ -214,11 +222,51 @@ void RenderableObject::Draw()
 			cubeEMShader.effect->End();
 
 			break;
+		}		
+						  		
+		case CubeRefractEM:{
+			cubeRefractEMShader.effect->SetTechnique("CubeRefractEM");
+			cubeRefractEMShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
+			cubeRefractEMShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
+			cubeRefractEMShader.effect->SetTexture("cubeTex", material.cubeTex);
+			cubeRefractEMShader.effect->SetRawValue("eyePos", &(scene.mainCamera.position), 0, sizeof(Vector3));
+			cubeRefractEMShader.effect->SetFloat("etaRatio", material.etaRatio);
+
+			cubeRefractEMShader.effect->Begin(0, 0);
+			cubeRefractEMShader.effect->BeginPass(0);
+
+			mesh.Draw();
+
+			cubeRefractEMShader.effect->EndPass();
+			cubeRefractEMShader.effect->End();
+
+			break;
+		}
+
+		case IrrEM:{
+			irradianceEMShader.effect->SetTechnique("IrradianceEM");
+			irradianceEMShader.effect->SetMatrix("matWVP", &(mesh.LocalToWorldMatrix()*scene.mainCamera.ViewMatrix()*scene.mainCamera.ProjMatrix()));
+			irradianceEMShader.effect->SetMatrix("matWorld", &(mesh.LocalToWorldMatrix()));
+			irradianceEMShader.effect->SetTexture("diffCubeTex", irrEM.diffCubeTex);
+			irradianceEMShader.effect->SetTexture("specCubeTex", irrEM.specCubeTex);
+
+			irradianceEMShader.effect->Begin(0, 0);
+			irradianceEMShader.effect->BeginPass(0);
+
+			mesh.Draw();
+
+			irradianceEMShader.effect->EndPass();
+			irradianceEMShader.effect->End();
+
+			break;
 		}
 	}
 
 	gizmo.rotation = mesh.rotation;
 	if(showGizmo)
 		gizmo.Draw(mesh.position);
+
+	if(displayMode == WireFrame)
+		D3DDevice->SetRenderState( D3DRS_FILLMODE, D3DFILL_SOLID );
 	
 }

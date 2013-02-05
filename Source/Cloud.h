@@ -27,7 +27,7 @@ public:
 		((VertexUV*)vertexData)[2] = VertexUV(-size, 0, -size, 0, 1);
 		((VertexUV*)vertexData)[3] = VertexUV( size, 0, -size, 1, 1);
 		
-		indexData = new WORD[3*numTriangles];
+		indexData = new DWORD[3*numTriangles];
 		indexData[0] = 0;
 		indexData[1] = 2;
 		indexData[2] = 1;
@@ -59,7 +59,7 @@ public:
 			((VertexUV*)vertexData)[i+1] = VertexUV(x, 0, z, u, v);
 		}
 
-		indexData = new WORD[3*numTriangles];
+		indexData = new DWORD[3*numTriangles];
 		for(int i = 0; i < segments; ++i){
 			if(i == segments - 1){
 				indexData[3*i + 0] = 0;
@@ -103,7 +103,7 @@ public:
 	IDirect3DTexture9 *cloudTex;
 
 	void *vertexData;
-	WORD *indexData;
+	DWORD *indexData;
 
 	IDirect3DVertexBuffer9* vertexBuffer;
 	IDirect3DIndexBuffer9*  indexBuffer;

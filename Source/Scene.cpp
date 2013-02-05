@@ -7,6 +7,12 @@ void Scene::AddObject(RenderableObject *object)
 
 }
 
+void Scene::AddTerrain(Terrain *terrain)
+{
+	terrains.push_back(terrain);
+	numTerrains++;
+}
+
 void Scene::SetAmbientLight(Vector3 color, float intensity)
 {
 	ambientLight = new AmbientLight(color, intensity);
@@ -90,9 +96,27 @@ void Scene::Render()
 
 	//skyDome.Render();
 	//cloud.Render();
+
+	skyBox.Render();
+	
+	for(list<Terrain*>::iterator iter = terrains.begin(); iter != terrains.end(); ++iter)
+		(*iter)->Render();
 	
 	for(list<RenderableObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter)
 		(*iter)->Draw();
+	
+    LPDIRECT3DSURFACE9 pSurfRT;
+    D3DSURFACE_DESC surfDesc;
+    D3DDevice->GetRenderTarget( 0, &pSurfRT );
+    pSurfRT->GetDesc( &surfDesc );
+	
+    D3DXVECTOR4 fsQuad[4];
+    fsQuad[0] = D3DXVECTOR4( 0, 0, 0.5f, 1.f );
+    fsQuad[1] = D3DXVECTOR4(  (float)surfDesc.Width, 0, 0.5f, 1.f );
+    fsQuad[2] = D3DXVECTOR4( 0,  (float)surfDesc.Height, 0.5f, 1.f );
+    fsQuad[3] = D3DXVECTOR4( (float)surfDesc.Width,  (float)surfDesc.Height, 0.5f, 1.f );
+    D3DDevice->SetFVF(D3DFVF_XYZRHW);
+   // D3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, fsQuad, sizeof(D3DXVECTOR4));
 
 	D3DDevice->EndScene();
 	D3DDevice->Present(0, 0, 0, 0);
