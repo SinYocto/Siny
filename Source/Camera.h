@@ -3,6 +3,7 @@
 
 #include"Object.h"
 #include"Math.h"
+#include"Bound.h"
 
 class Camera:public Object
 {
@@ -11,12 +12,19 @@ public:
 	D3DXMATRIX ProjMatrix();
 	D3DXMATRIX OrthoProjMatrix();
 	D3DXMATRIX ViewMatrix();
+
+	void ExtractFrustumPlanes();
+	bool isVisable(BoundingBox boundingBox);
 public:
 	float FOV;
 	float aspect;
 	float nearZ;
 	float farZ;
 	float orthoWidth;
+
+	D3DXPLANE frustumPlanes[6];
+
+	bool isTranformDirty;
 };
 
 extern Camera mainCamera;

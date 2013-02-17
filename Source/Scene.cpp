@@ -43,6 +43,12 @@ void Scene::AddPointLight(PointLight *light)
 
 void Scene::Update()
 {
+	
+	if(scene.mainCamera.isTranformDirty){
+		scene.mainCamera.ExtractFrustumPlanes();
+		scene.mainCamera.isTranformDirty = false;
+	}
+
 	DayTime::Update();
 
 	/*if(isColorSky)

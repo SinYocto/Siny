@@ -3,6 +3,7 @@
 
 #include"D3DUtility.h"
 #include"Object.h"
+#include"Bound.h"
 #include<map>
 #include<vector>
 
@@ -29,6 +30,7 @@ public:
 	void CalculateTangents();
 	void CalculateBitangents();
 	void CalculateUVs(UVMappingMode uvMode);
+	void CalculateBoundingBox();
 
 	void SetStream();
 	void Draw();
@@ -58,6 +60,9 @@ public:
 	Vector3 *tangentData;
 	Vector3 *bitangentData;
 	DWORD *indexData;
+
+	BoundingBox boundingBox;
+
 };
 
 

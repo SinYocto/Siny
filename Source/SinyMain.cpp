@@ -24,6 +24,7 @@
 #include"IrradianceEM.h"
 #include"SkyBox.h"
 #include"Terrain.h"
+#include"QuadTree.h"
 
 
 //--------------
@@ -61,6 +62,8 @@ Material mtlCubeMap;
 Material mtlTerrain;
 
 //IrradianceEM irrEM;
+
+QuadTreeNode quadTree(0, 0, 100, 3);
 
 
 bool windowed = true;
@@ -130,6 +133,18 @@ int AppSetup()
 	irrEM.BuildParaboloidWeightTexs();
 	irrEM.BuildLambertIrradianceTexs();
 	irrEM.BuildPhongIrradianceTexs();*/
+
+	//QuadTreeNode quadTree(0, 0, 64, 2);
+	quadTree.EvaluateVisibility();
+
+	printf("center of depth3 leftTop node is : (%f, %f)\n", quadTree.leftTop->leftTop->leftTop->centerX, quadTree.leftTop->leftTop->leftTop->centerZ);
+
+	printf("boundingBox of the node above is : min(%f, %f, %f) max(%f, %f, %f)\n", quadTree.leftTop->leftTop->leftTop->boundingBox.min.x, 
+		quadTree.leftTop->leftTop->leftTop->boundingBox.min.y, 
+		quadTree.leftTop->leftTop->leftTop->boundingBox.min.z, 
+		quadTree.leftTop->leftTop->leftTop->boundingBox.max.x, 
+		quadTree.leftTop->leftTop->leftTop->boundingBox.max.y, 
+		quadTree.leftTop->leftTop->leftTop->boundingBox.max.z);
 
 
 
@@ -205,9 +220,18 @@ int AppLoop()
 
 	//printf("cur Time: %d:%d:%d\n", DayTime::curDayTime.hour, DayTime::curDayTime.minute, DayTime::curDayTime.second);
 	scene.Update();
+
+	
+	//quadTree.EvaluateVisibility();
+	//
+	//printf("visibility of the node above is :");
+	//if(quadTree.leftTop->leftTop->leftTop->isInFrustum)
+	////if(scene.mainCamera.isVisable(cubie.mesh.boundingBox))
+	//	printf("yes\n");
+	//else
+	//	printf("no\n");
+
 	scene.Render();
-
-
 
 	return true;
 }
@@ -305,14 +329,21 @@ void FPCameraControl(float deltaTime)
 	if(Input::GetKey(DIK_E))
 		moveVector = moveVector + moveSpeed * deltaTime * Vector3(0, 1, 0);
 
-	scene.mainCamera.Translate(moveVector);
+	
+	if(moveVector != Vector3::Zero){
+		scene.mainCamera.isTranformDirty = true;
+		scene.mainCamera.Translate(moveVector);
+	}
 	
 	if(Input::MouseState.rgbButtons[1] & 0x80){
 		float rotationY = rotateSpeed * Input::MouseState.lX / 1000.0f;
 		float rotationX = rotateSpeed * Input::MouseState.lY / 1000.0f;
 
-		scene.mainCamera.Rotate(0, rotationY, 0);
-		scene.mainCamera.RotateLocal(rotationX, 0, 0);
+		if(rotationY != 0 || rotationX != 0){
+			scene.mainCamera.isTranformDirty = true;
+			scene.mainCamera.Rotate(0, rotationY, 0);
+			scene.mainCamera.RotateLocal(rotationX, 0, 0);
+		}
 	}
 
 }
@@ -334,6 +365,9 @@ void HoverCameraControl(Vector3 targetPos, float deltaTime)
 		float deltaPanAngle = - rotateSpeed * Input::MouseState.lX / 1000.0f;
 		float deltaTiltAngle = rotateSpeed * Input::MouseState.lY / 1000.0f;
 
+		if(deltaPanAngle != 0 || deltaTiltAngle != 0)
+			scene.mainCamera.isTranformDirty = true;
+
 		panAngle += deltaPanAngle;
 		tiltAngle += deltaTiltAngle;
 
@@ -345,6 +379,9 @@ void HoverCameraControl(Vector3 targetPos, float deltaTime)
 
 	if(Input::MouseState.rgbButtons[0] & 0x80){
 		float deltaDistance = zoomSpeed * ( -Input::MouseState.lX + Input::MouseState.lY) / 1000.0f;
+		
+		if(deltaDistance != 0)
+			scene.mainCamera.isTranformDirty = true;
 
 		distance += deltaDistance;
 		if(distance > maxDistance)
@@ -365,8 +402,9 @@ void HoverCameraControl(Vector3 targetPos, float deltaTime)
 void SetCamera()
 {
 	scene.mainCamera = Camera(PI/3, (float)screenWidth / screenHeight, 0.1f, 1000.0f);
-	scene.mainCamera.position = Vector3(0.0f, 2.0f, -10.0f);
+	scene.mainCamera.position = Vector3(0.0f, 50.0f, -80.0f);
 	scene.mainCamera.LookAt(Vector3::Zero);
+	scene.mainCamera.ExtractFrustumPlanes();
 }
 
 void SetShaders()
@@ -461,15 +499,15 @@ void SetMaterials()
 
 void SetTerrain()
 {	
+	printf("SetTerrain()\n");
 	terrain.LoadFromHeightMap("./Textures/heightMap257_bit16.raw", 257);
-	terrain.BuildTerrain(200, 200, 20);
+	terrain.BuildTerrain(200, 20, 3);
 	terrain.CalculateNormals();
 	//terrain.CalculateTangents();
 	//terrain.CalculateBitangents();
-	terrain.Build(XYZ_UV_N);
+	terrain.BuildChunkMesh(XYZ_UV_N);
 	terrain.SetColorTexes("./Textures/Cliff.jpg", "./Textures/Grass_Hill.jpg", "./Textures/DirtGrass.jpg", "./Textures/Pebbles.jpg");
 	terrain.SetSplatMapTex("./Textures/splat.tga");
-	terrain.position = Vector3(0, 0, 0);
 	terrain.SetMtlParameters(30.0f, 30.0f);
 
 	scene.AddTerrain(&terrain);
@@ -486,7 +524,7 @@ void SetMeshes()
 	cube.CalculateTangents();
 	cube.CalculateBitangents();
 	cube.Build(XYZ_UV_TBN);
-	cube.position = Vector3(-10, 20, 0);
+	//cube.position = Vector3(-10, 20, 0);
 
 	cubie = RenderableObject(cube, Diffuse, mtlBrickD);
 	scene.AddObject(&cubie);

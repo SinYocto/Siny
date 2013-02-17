@@ -36,6 +36,8 @@ Mesh::Mesh(const Mesh &mesh)
 
 	normalPairs = mesh.normalPairs;
 
+	boundingBox = mesh.boundingBox;
+
 }
 
 Mesh Mesh::operator=(const Mesh &mesh)
@@ -63,6 +65,8 @@ Mesh Mesh::operator=(const Mesh &mesh)
 	sizeofVertex = mesh.sizeofVertex;
 
 	normalPairs = mesh.normalPairs;
+
+	boundingBox = mesh.boundingBox;
 
 	return *this;
 }
@@ -137,6 +141,8 @@ void Mesh::Build(VertexType type)
 
 	CreateVertexBuffer(numVertices);
 	CreateIndexBuffer(3*numTriangles);
+
+	CalculateBoundingBox();
 
 }
 
@@ -333,6 +339,32 @@ void Mesh::CalculateUVs(UVMappingMode uvMode)
 			break;
 		}
 	}
+}
+
+void Mesh::CalculateBoundingBox()
+{
+	boundingBox.max = Vector3(FLT_MIN, FLT_MIN, FLT_MIN);
+	boundingBox.min = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+
+	for(int i = 0; i < numVertices; ++i){
+		if(positionData[i].x > boundingBox.max.x)
+			boundingBox.max.x = positionData[i].x;
+		if(positionData[i].x < boundingBox.min.x)
+			boundingBox.min.x = positionData[i].x;
+
+
+		if(positionData[i].y > boundingBox.max.y)
+			boundingBox.max.y = positionData[i].y;
+		if(positionData[i].y < boundingBox.min.y)
+			boundingBox.min.y = positionData[i].y;
+
+		if(positionData[i].z > boundingBox.max.z)
+			boundingBox.max.z = positionData[i].z;
+		if(positionData[i].z < boundingBox.min.z)
+			boundingBox.min.z = positionData[i].z;
+
+	}
+
 }
 
 
