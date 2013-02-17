@@ -10,6 +10,7 @@ public:
 	void EvaluateVisibility();
 private:
 	void CalculateBoundingBox();
+	void SetInvisible();
 public:
 	float centerX;
 	float centerZ;

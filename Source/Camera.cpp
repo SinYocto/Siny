@@ -57,8 +57,9 @@ void Camera::ExtractFrustumPlanes()
 
 }
 
-bool Camera::isVisable(BoundingBox boundingBox)
+bool Camera::isVisible(BoundingBox boundingBox)
 {
+	/* 以下方法会在invisible时误判为visible。一种解决方法是再加上viewFrustum8个顶点是否在boundingBox内的判断。
 	for(int i = 0; i < 6; ++i){
 
 		bool isBehind = true;
@@ -71,5 +72,30 @@ bool Camera::isVisable(BoundingBox boundingBox)
 			return false;
 	}
 
+	return true;*/
+
+	for(int i = 0; i < 6; ++i){
+		Vector3 vertP = boundingBox.min;
+		Vector3 vertN = boundingBox.max;
+
+		if(frustumPlanes[i].a > 0)
+			vertP.x = boundingBox.max.x;
+		if(frustumPlanes[i].b > 0)
+			vertP.y = boundingBox.max.y;
+		if(frustumPlanes[i].c > 0)
+			vertP.z = boundingBox.max.z;
+		
+		if(frustumPlanes[i].a > 0)
+			vertN.x = boundingBox.min.x;
+		if(frustumPlanes[i].b > 0)
+			vertN.y = boundingBox.min.y;
+		if(frustumPlanes[i].c > 0)
+			vertN.z = boundingBox.min.z;
+
+		if(vertP.Dot(Vector3(frustumPlanes[i].a, frustumPlanes[i].b, frustumPlanes[i].c)) + frustumPlanes[i].d < 0)
+			return false;
+	}
+
 	return true;
+
 }

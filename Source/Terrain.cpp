@@ -245,7 +245,8 @@ void Terrain::Render()
 
 	int culledChunks = 0;
 	for(vector<Chunk>::iterator iter = chunks.begin(); iter != chunks.end(); ++iter){
-		if(scene.mainCamera.isVisable((*iter).mesh.boundingBox)){
+		//if(scene.mainCamera.isVisible((*iter).mesh.boundingBox)){
+		if((*iter).node->isInFrustum){
 			(*iter).mesh.SetStream();
 			(*iter).mesh.SetVertexDeclaration();
 			(*iter).mesh.Draw();

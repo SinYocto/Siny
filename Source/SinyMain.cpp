@@ -63,8 +63,6 @@ Material mtlTerrain;
 
 //IrradianceEM irrEM;
 
-QuadTreeNode quadTree(0, 0, 100, 3);
-
 
 bool windowed = true;
 int screenWidth = 1280;
@@ -133,20 +131,6 @@ int AppSetup()
 	irrEM.BuildParaboloidWeightTexs();
 	irrEM.BuildLambertIrradianceTexs();
 	irrEM.BuildPhongIrradianceTexs();*/
-
-	//QuadTreeNode quadTree(0, 0, 64, 2);
-	quadTree.EvaluateVisibility();
-
-	printf("center of depth3 leftTop node is : (%f, %f)\n", quadTree.leftTop->leftTop->leftTop->centerX, quadTree.leftTop->leftTop->leftTop->centerZ);
-
-	printf("boundingBox of the node above is : min(%f, %f, %f) max(%f, %f, %f)\n", quadTree.leftTop->leftTop->leftTop->boundingBox.min.x, 
-		quadTree.leftTop->leftTop->leftTop->boundingBox.min.y, 
-		quadTree.leftTop->leftTop->leftTop->boundingBox.min.z, 
-		quadTree.leftTop->leftTop->leftTop->boundingBox.max.x, 
-		quadTree.leftTop->leftTop->leftTop->boundingBox.max.y, 
-		quadTree.leftTop->leftTop->leftTop->boundingBox.max.z);
-
-
 
 	return 1;
 }
@@ -221,15 +205,10 @@ int AppLoop()
 	//printf("cur Time: %d:%d:%d\n", DayTime::curDayTime.hour, DayTime::curDayTime.minute, DayTime::curDayTime.second);
 	scene.Update();
 
-	
-	//quadTree.EvaluateVisibility();
-	//
-	//printf("visibility of the node above is :");
-	//if(quadTree.leftTop->leftTop->leftTop->isInFrustum)
-	////if(scene.mainCamera.isVisable(cubie.mesh.boundingBox))
-	//	printf("yes\n");
-	//else
-	//	printf("no\n");
+	/*if(scene.mainCamera.isVisible(cubie.mesh.boundingBox))
+		printf("visable\n");
+	else
+		printf("invisibal\n");*/
 
 	scene.Render();
 
@@ -501,7 +480,7 @@ void SetTerrain()
 {	
 	printf("SetTerrain()\n");
 	terrain.LoadFromHeightMap("./Textures/heightMap257_bit16.raw", 257);
-	terrain.BuildTerrain(200, 20, 3);
+	terrain.BuildTerrain(200, 20, 4);
 	terrain.CalculateNormals();
 	//terrain.CalculateTangents();
 	//terrain.CalculateBitangents();

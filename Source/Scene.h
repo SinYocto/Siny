@@ -85,6 +85,9 @@ public:
 	int numActiveDirectionalLights;
 	int numActivePointLights;
 
+	int numDrawCalls;
+	int numTriangles;
+
 	bool directionalLightsDirty;
 	bool pointLightsDirty;
 

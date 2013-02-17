@@ -14,7 +14,7 @@ public:
 	D3DXMATRIX ViewMatrix();
 
 	void ExtractFrustumPlanes();
-	bool isVisable(BoundingBox boundingBox);
+	bool isVisible(BoundingBox boundingBox);
 public:
 	float FOV;
 	float aspect;

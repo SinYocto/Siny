@@ -28,19 +28,35 @@ QuadTreeNode::QuadTreeNode(float _centerX, float _centerZ, float _halfSize, int 
 
 void QuadTreeNode::CalculateBoundingBox()
 {
-	boundingBox = BoundingBox(Vector3(centerX, 0, centerZ), halfSize, 1000.0f, halfSize);
+	boundingBox = BoundingBox(Vector3(centerX, 0, centerZ), halfSize, 50.0f, halfSize);
 }
 
 void QuadTreeNode::EvaluateVisibility()
 {
-	isInFrustum = scene.mainCamera.isVisable(boundingBox);
+	isInFrustum = scene.mainCamera.isVisible(boundingBox);
 
-	if(leftTop)
-		leftTop->EvaluateVisibility();
-	if(rightTop)
-		rightTop->EvaluateVisibility();
-	if(leftBottom)
-		leftBottom->EvaluateVisibility();
-	if(rightBottom)
-		rightBottom->EvaluateVisibility();
+	if(!isInFrustum){
+		SetInvisible();
+	}
+	else{
+		if(leftTop)
+			leftTop->EvaluateVisibility();
+		if(rightTop)
+			rightTop->EvaluateVisibility();
+		if(leftBottom)
+			leftBottom->EvaluateVisibility();
+		if(rightBottom)
+			rightBottom->EvaluateVisibility();
+	}
+}
+
+void QuadTreeNode::SetInvisible()
+{
+	isInFrustum = false;
+	if(!isLeaf){
+		leftTop->SetInvisible();
+		rightTop->SetInvisible();
+		leftBottom->SetInvisible();
+		rightBottom->SetInvisible();
+	}
 }

@@ -43,6 +43,8 @@ void Scene::AddPointLight(PointLight *light)
 
 void Scene::Update()
 {
+	numDrawCalls = 0;
+	numTriangles = 0;
 	
 	if(scene.mainCamera.isTranformDirty){
 		scene.mainCamera.ExtractFrustumPlanes();
