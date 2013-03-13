@@ -250,6 +250,22 @@ D3DXMATRIX Quaternion::matrix()
 	return mat;
 }
 
+Rect::Rect()
+{
+	left = 0;
+	top = 0;
+	right = 0;
+	bottom = 0;
+}
+
+Rect::Rect(long _left, long _top, long width, long height)
+{
+	left = _left;
+	top = _top;
+	right = left + width;
+	bottom = top + height;
+}
+
 
 unsigned int factorial(unsigned int value)
 { 

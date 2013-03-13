@@ -36,8 +36,6 @@ Mesh::Mesh(const Mesh &mesh)
 
 	normalPairs = mesh.normalPairs;
 
-	boundingBox = mesh.boundingBox;
-
 }
 
 Mesh Mesh::operator=(const Mesh &mesh)
@@ -65,8 +63,6 @@ Mesh Mesh::operator=(const Mesh &mesh)
 	sizeofVertex = mesh.sizeofVertex;
 
 	normalPairs = mesh.normalPairs;
-
-	boundingBox = mesh.boundingBox;
 
 	return *this;
 }
@@ -371,6 +367,9 @@ void Mesh::CalculateBoundingBox()
 void Mesh::LoadDataFromFile(string filename, MeshFileFormat format)
 {
 	fstream fin(filename.c_str());
+
+	if(!fin)
+		printf("load file \"%s\" Failed!", filename.c_str());
 
 	switch(format){
 	case OBJ:

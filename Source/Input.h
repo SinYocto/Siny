@@ -16,12 +16,22 @@ public:
 	static void GetDIDState();
 	static bool GetKey(BYTE keyCode);
 	static bool GetKeyDown(BYTE keyCode);
+	static bool GetKeyUp(BYTE keyCode);
+	static bool GetLeftButton();
+	static bool GetLeftButtonDown();
+	static bool GetLeftButtonUp();
+	static bool GetRightButton();
+	static bool GetRightButtonDown();
+	static bool GetRightButtonUp();
 
 public:
 	static char KeyState[256];
 	static DIMOUSESTATE MouseState;
+	static POINT lastCursorPos;
+	static POINT cursorPos;
 private:
 	static char lastKeyState[256];
+	static DIMOUSESTATE lastMouseState;
 };
 
 #endif

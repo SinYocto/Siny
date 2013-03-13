@@ -60,6 +60,15 @@ public:
 	float w,x,y,z;
 };
 
+class Rect
+{
+public:
+	Rect();
+	Rect(long _left, long _top, long width, long height);
+public:
+	long left, top, right, bottom;
+};
+
 unsigned int factorial(unsigned int value);
 
 #endif

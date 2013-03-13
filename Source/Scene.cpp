@@ -41,22 +41,37 @@ void Scene::AddPointLight(PointLight *light)
 	}
 }
 
+void Scene::CalculateFPS()
+{
+	static float timer = 0;
+	static int count = 0;
+
+	if(fps == 0)
+		fps = 1 / Time::deltaTime;
+
+	timer += Time::deltaTime;
+	count++;
+	if(timer > 1.0f){
+		timer = 0;
+		fps = count;
+		count = 0;
+	}
+}
+
 void Scene::Update()
 {
-	numDrawCalls = 0;
-	numTriangles = 0;
+	CalculateFPS();
+	DayTime::Update();
 	
 	if(scene.mainCamera.isTranformDirty){
 		scene.mainCamera.ExtractFrustumPlanes();
 		scene.mainCamera.isTranformDirty = false;
 	}
 
-	DayTime::Update();
-
-	/*if(isColorSky)
+	if(isColorSky)
 		UpdateSkyColor();
 
-	cloud.GenerateCloudTex();*/
+	cloud.GenerateCloudTex();
 
 	if(directionalLightsDirty){
 
@@ -102,8 +117,8 @@ void Scene::Render()
 	D3DDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, backgroundColor, 1.0f, 0);
 	D3DDevice->BeginScene();
 
-	//skyDome.Render();
-	//cloud.Render();
+	skyDome.Render();
+	cloud.Render();
 
 	skyBox.Render();
 	
@@ -125,6 +140,8 @@ void Scene::Render()
     fsQuad[3] = D3DXVECTOR4( (float)surfDesc.Width,  (float)surfDesc.Height, 0.5f, 1.f );
     D3DDevice->SetFVF(D3DFVF_XYZRHW);
    // D3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, fsQuad, sizeof(D3DXVECTOR4));
+
+	GUISystem.Draw();
 
 	D3DDevice->EndScene();
 	D3DDevice->Present(0, 0, 0, 0);

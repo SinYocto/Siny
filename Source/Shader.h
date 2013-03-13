@@ -34,4 +34,7 @@ extern Shader cubeMappingShader;
 
 extern Shader terrainShader;
 
+extern Shader colorPickerSLShader; 
+extern Shader colorPickerHueShader;
+
 #endif

@@ -174,7 +174,8 @@ public:
 
 				float factorV = Vector3(0, 1, 0).Dot(Vector3(i - temp, j - temp, 0).normalized());
 				factorV = (factorV + 1) / 2;
-				factorV = pow(factorV, 4);
+				factorV = sin(factorV);
+				factorH = pow(factorH, 3);
 
 				D3DCOLOR altitudeColor = ColorLerp(skyColor.westColor, skyColor.eastColor, factorV);
 				D3DCOLOR resultColor = ColorLerp(skyColor.zenithColor, altitudeColor, factorH);

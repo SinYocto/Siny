@@ -7,15 +7,19 @@
 #include"Input.h"
 #include<string>
 
+#include"Math.h"
+
 using namespace std;
 
 extern HWND HWnd;
 extern IDirect3D9 *D3D;
 extern IDirect3DDevice9 *D3DDevice;
 
-
-
 #define SAFE_RELEASE(p)			{ if(p) { (p)->Release(); (p)=NULL; } }
+
+const D3DXCOLOR WHITE(D3DCOLOR_ARGB(255, 255, 255, 255));
+const D3DXCOLOR BLACK(D3DCOLOR_ARGB(255, 0, 0, 0));
+const D3DXCOLOR YELLOW(D3DCOLOR_ARGB(255, 255, 255, 0));
 
 struct Vertex
 {
@@ -74,7 +78,30 @@ struct VertexN
 	static const DWORD FVF = D3DFVF_XYZ | D3DFVF_NORMAL;
 };
 
-enum VertexType { XYZ, XYZ_UV, XYZ_N, XYZ_UV_N, XYZ_UV_TBN };
+struct VertexXYZRHWUV
+{
+	VertexXYZRHWUV() {}
+	VertexXYZRHWUV(float x, float y, float z, float rhw, float u, float v)
+	{
+		_x = x; _y = y; _z = z; _rhw = rhw; _u = u; _v = v;
+	}
+	float _x, _y, _z, _rhw, _u, _v;
+	static const DWORD FVF = D3DFVF_XYZRHW | D3DFVF_TEX1;
+};
+
+struct VertexXYZRHWD
+{
+	VertexXYZRHWD() {}
+	VertexXYZRHWD(float x, float y, float z, float rhw, D3DCOLOR color)
+	{
+		_x = x; _y = y; _z = z; _rhw = rhw; _color = color;
+	}
+	float _x, _y, _z, _rhw;
+	D3DCOLOR _color;
+	static const DWORD FVF = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
+};
+
+enum VertexType { XYZ, XYZ_UV, XYZ_N, XYZ_UV_N, XYZ_UV_TBN, XYZRHW_UV, XYZRHW_D };
 
 int	InitD3D(HINSTANCE hInstance, bool windowed, int screenWidth, int screenHeight, _D3DMULTISAMPLE_TYPE multisampleType, DWORD multisampleQuality, 
 			HWND &hWnd, IDirect3D9** d3d, IDirect3DDevice9** d3dDevice);
@@ -88,5 +115,10 @@ void CreateCubeTextureFromFile(IDirect3DCubeTexture9 *&cubeTex, int cubeTexSize,
 D3DCOLOR ColorLerp(D3DCOLOR color1, D3DCOLOR color2, float factor);
 float Lerp(float value1, float value2, float factor);
 
+
+wchar_t* str2wstr(const char *str);
+float Hue2RGB(float v1, float v2, float vh);
+D3DXCOLOR HSL2RGB(Vector3 hsl);
+Vector3 RGB2HSL(D3DXCOLOR rgb);
 
 #endif

@@ -243,7 +243,7 @@ void Terrain::Render()
 	terrainShader.effect->Begin(0, 0);
 	terrainShader.effect->BeginPass(0);
 
-	int culledChunks = 0;
+	culledChunks = 0;
 	for(vector<Chunk>::iterator iter = chunks.begin(); iter != chunks.end(); ++iter){
 		//if(scene.mainCamera.isVisible((*iter).mesh.boundingBox)){
 		if((*iter).node->isInFrustum){

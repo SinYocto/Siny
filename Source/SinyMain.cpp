@@ -25,6 +25,7 @@
 #include"SkyBox.h"
 #include"Terrain.h"
 #include"QuadTree.h"
+#include"GUI.h"
 
 
 //--------------
@@ -48,6 +49,8 @@ RenderableObject teapotRO;
 RenderableObject irrTeapotRO;
 
 RenderableObject terrainRO;
+
+LabelStyle* leftAlignStyle;
 
 // Material
 Material mtlBrickP;     // use parallax mapping
@@ -85,6 +88,8 @@ int AppDestory();
 void FPCameraControl(float deltaTime);
 void HoverCameraControl(Vector3 targetPos, float deltaTime);
 
+void GUIUpdate();
+
 void SetCamera();
 void SetShaders();
 void SetMaterials();
@@ -92,6 +97,7 @@ void SetTerrain();
 void SetMeshes();
 void SetLights();
 void SetSky();
+void SetGUIStyle();
 
 //------------
 // 函数定义
@@ -118,6 +124,7 @@ int AppInit(HINSTANCE hInst)
  */
 int AppSetup()
 {
+	SetGUIStyle();
 	SetCamera();
 	SetShaders();
 	SetMaterials();
@@ -126,11 +133,6 @@ int AppSetup()
 	SetLights();
 	SetSky();
 	scene.backgroundColor = 0xff1e90ff;
-
-	/*irrEM.Init();
-	irrEM.BuildParaboloidWeightTexs();
-	irrEM.BuildLambertIrradianceTexs();
-	irrEM.BuildPhongIrradianceTexs();*/
 
 	return 1;
 }
@@ -147,19 +149,6 @@ int AppLoop()
 	FPCameraControl(Time::deltaTime);
 	//HoverCameraControl(cubie.mesh.position, Time::deltaTime);
 
-	// cube - update
-	static float angleY = 0;
-	angleY += Time::deltaTime * 0.2f * 3.14f;
-
-	//cubie.mesh.rotation = Quaternion(0, angleY, 0);
-
-	/*if(Input::GetKeyDown(DIK_UP))
-		DayTime::SetTimeScale(DayTime::curDayTime.scale * 2);
-	if(Input::GetKeyDown(DIK_DOWN))
-		DayTime::SetTimeScale(DayTime::curDayTime.scale / 2);*/
-
-	//dirLight0.direction = Vector3(0, sin(angleY), cos(angleY));
-	//scene.directionalLightsDirty = true;
 
 	if(Input::GetKey(DIK_UP))
 		cubie.material.uvOffset += 0.0001f;
@@ -194,22 +183,8 @@ int AppLoop()
 		cubie.material = mtlBrickPOM;
 	}
 
-
-	
-	/*irrEM.RenderParaboloidEnvMap();
-	irrEM.ProjectParaboloidToSH();
-	irrEM.EvaluateConvolvedSH(IrradianceLambert);
-	irrEM.EvaluateConvolvedSH(IrradiancePhong);*/
-
-
-	//printf("cur Time: %d:%d:%d\n", DayTime::curDayTime.hour, DayTime::curDayTime.minute, DayTime::curDayTime.second);
+	GUIUpdate();
 	scene.Update();
-
-	/*if(scene.mainCamera.isVisible(cubie.mesh.boundingBox))
-		printf("visable\n");
-	else
-		printf("invisibal\n");*/
-
 	scene.Render();
 
 	return true;
@@ -248,9 +223,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nS
 	QueryPerformanceCounter(&lpf);
 	static LONGLONG lastFreq = lpf.QuadPart;
 
-	float timer = 0;
-	int fps = 0;
-
 	while(msg.message != WM_QUIT){
 		if(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
@@ -262,15 +234,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nS
 		float deltaTime = (curFreq - lastFreq) / (float)nFreq;
 		Time::deltaTime = deltaTime;
 		lastFreq = curFreq;
-		
-		fps++;
-		timer += deltaTime;
-		if(timer > 1.0f){
-			printf("fps:%d\n", fps);
-			timer = 0;
-			fps = 0;
-		}
-		//printf("fps:%f\n", 1 / deltaTime);
 
 		if(!AppLoop()){
 			MessageBox(0, "AppLoop() - FAILED", 0, 0);
@@ -378,11 +341,132 @@ void HoverCameraControl(Vector3 targetPos, float deltaTime)
 
 }
 
+void SetGUIStyle()
+{
+	defaultLabelStyle.CreateFont();
+	leftAlignStyle = new LabelStyle("黑体", 8, 17, 0, WHITE, DT_LEFT | DT_VCENTER);
+	leftAlignStyle->CreateFont();
+
+	defaultButtonStyle.CreateTextures();
+	defaultSliderStyle.CreateTextures();
+	defaultToggleStyle.CreateTextures();
+	defaultListBoxStyle.CreateTextures();
+}
+
+void GUIUpdate()
+{
+	GUISystem.clear();
+	
+	char text[50];
+	sprintf(text, "fps:%d", scene.fps);
+	GUISystem.GUILabel(text, Rect(10, 10, 100, 25), leftAlignStyle);
+	
+	sprintf(text, "culledChunks:%d", (*(scene.terrains.begin()))->culledChunks);
+	GUISystem.GUILabel(text, Rect(110, 10, 200, 25), leftAlignStyle);
+
+
+	static bool showSettings = false;
+	if(GUISystem.GUIButton("Settings", Rect(10, 40, 100, 25)))
+		showSettings = !showSettings;
+	
+	GUISystem.GUILabel("操作：按住鼠标右键旋转摄像机，WASDQE移动", Rect(10, 70, 400, 25), leftAlignStyle);
+	if(showSettings){
+		GUISystem.GUILabel("Time:", Rect(10, 100, 100, 25), leftAlignStyle); 
+
+		static int cubieMaterialIx = 0;
+		vector<LPWSTR> listItems;
+		listItems.push_back(str2wstr("BasicSpecular"));
+		listItems.push_back(str2wstr("BumpMapping"));
+		listItems.push_back(str2wstr("NormalMapping"));
+		listItems.push_back(str2wstr("POM"));
+		cubieMaterialIx = GUISystem.GUIListBox(listItems, Rect(400, 70, 200, 25), cubieMaterialIx, "cubieMaterialIx");
+
+		switch(cubieMaterialIx){
+			case 0:
+				cubie.shader = Specular;
+				cubie.material = mtlBrickS;
+				break;
+			case 1:
+				cubie.shader = BumpHSpecular;
+				cubie.material = mtlBrickB;
+				break;
+			case 2:
+				cubie.shader = BumpSpecular;
+				cubie.material = mtlBrickN;
+				break;
+			case 3:
+				cubie.shader = BumpPOMSpecular;
+				cubie.material = mtlBrickPOM;
+				break;
+		}
+
+		static int timeCount = 0;
+		timeCount = GUISystem.GUISlider(Rect(110, 100, 200, 25), 0, 3600*24 - 1, timeCount, "sliderHour");
+		int h = timeCount/3600;
+		int m = (timeCount - 3600*h)/60;
+		int s = timeCount%60;
+		sprintf(text, "%d:%d:%d", h, m, s);
+		GUISystem.GUILabel(text, Rect(310, 100, 100, 25));
+		DayTime::SetDayTime(h, m, s);
+
+		/*static bool flag = false;
+		flag = GUISystem.GUIToggle(Rect(10, 100, 25, 25), flag);*/
+
+		static D3DXCOLOR color0h_z = scene.skyColor[0].zenithColor;
+		static D3DXCOLOR color0h_w = scene.skyColor[0].westColor;
+		static D3DXCOLOR color0h_e = scene.skyColor[0].eastColor;
+		
+		static D3DXCOLOR color6h_z = scene.skyColor[1].zenithColor;
+		static D3DXCOLOR color6h_w = scene.skyColor[1].westColor;
+		static D3DXCOLOR color6h_e = scene.skyColor[1].eastColor;
+		
+		static D3DXCOLOR color12h_z = scene.skyColor[2].zenithColor;
+		static D3DXCOLOR color12h_w = scene.skyColor[2].westColor;
+		static D3DXCOLOR color12h_e = scene.skyColor[2].eastColor;
+		
+		static D3DXCOLOR color18h_z = scene.skyColor[3].zenithColor;
+		static D3DXCOLOR color18h_w = scene.skyColor[3].westColor;
+		static D3DXCOLOR color18h_e = scene.skyColor[3].eastColor;
+
+		color0h_z = GUISystem.GUIColor(Rect(10, 130, 25, 25), color0h_z, "color0h_z");
+		color0h_w = GUISystem.GUIColor(Rect(170, 130, 25, 25), color0h_w, "color0h_w");
+		color0h_e = GUISystem.GUIColor(Rect(330, 130, 25, 25), color0h_e, "color0h_e");
+		
+		color6h_z = GUISystem.GUIColor(Rect(10, 240, 25, 25), color6h_z, "color6h_z");
+		color6h_w = GUISystem.GUIColor(Rect(170, 240, 25, 25), color6h_w, "color6h_w");
+		color6h_e = GUISystem.GUIColor(Rect(330, 240, 25, 25), color6h_e, "color6h_e");
+		
+		color12h_z = GUISystem.GUIColor(Rect(10, 350, 25, 25), color12h_z, "color12h_z");
+		color12h_w = GUISystem.GUIColor(Rect(170, 350, 25, 25), color12h_w, "color12h_w");
+		color12h_e = GUISystem.GUIColor(Rect(330, 350, 25, 25), color12h_e, "color12h_e");
+		
+		color18h_z = GUISystem.GUIColor(Rect(10, 460, 25, 25), color18h_z, "color18h_z");
+		color18h_w = GUISystem.GUIColor(Rect(170, 460, 25, 25), color18h_w, "color18h_w");
+		color18h_e = GUISystem.GUIColor(Rect(330, 460, 25, 25), color18h_e, "color18h_e");
+
+		scene.skyColor[0].zenithColor = D3DCOLOR_XRGB((int)(color0h_z.r*255), (int)(color0h_z.g*255), (int)(color0h_z.b*255));
+		scene.skyColor[0].westColor = D3DCOLOR_XRGB((int)(color0h_w.r*255), (int)(color0h_w.g*255), (int)(color0h_w.b*255));
+		scene.skyColor[0].eastColor = D3DCOLOR_XRGB((int)(color0h_e.r*255), (int)(color0h_e.g*255), (int)(color0h_e.b*255));
+		
+		scene.skyColor[1].zenithColor = D3DCOLOR_XRGB((int)(color6h_z.r*255), (int)(color6h_z.g*255), (int)(color6h_z.b*255));
+		scene.skyColor[1].westColor = D3DCOLOR_XRGB((int)(color6h_w.r*255), (int)(color6h_w.g*255), (int)(color6h_w.b*255));
+		scene.skyColor[1].eastColor = D3DCOLOR_XRGB((int)(color6h_e.r*255), (int)(color6h_e.g*255), (int)(color6h_e.b*255));
+		
+		scene.skyColor[2].zenithColor = D3DCOLOR_XRGB((int)(color12h_z.r*255), (int)(color12h_z.g*255), (int)(color12h_z.b*255));
+		scene.skyColor[2].westColor = D3DCOLOR_XRGB((int)(color12h_w.r*255), (int)(color12h_w.g*255), (int)(color12h_w.b*255));
+		scene.skyColor[2].eastColor = D3DCOLOR_XRGB((int)(color12h_e.r*255), (int)(color12h_e.g*255), (int)(color12h_e.b*255));
+		
+		scene.skyColor[3].zenithColor = D3DCOLOR_XRGB((int)(color18h_z.r*255), (int)(color18h_z.g*255), (int)(color18h_z.b*255));
+		scene.skyColor[3].westColor = D3DCOLOR_XRGB((int)(color18h_w.r*255), (int)(color18h_w.g*255), (int)(color18h_w.b*255));
+		scene.skyColor[3].eastColor = D3DCOLOR_XRGB((int)(color18h_e.r*255), (int)(color18h_e.g*255), (int)(color18h_e.b*255));
+	}
+} 
+
 void SetCamera()
 {
 	scene.mainCamera = Camera(PI/3, (float)screenWidth / screenHeight, 0.1f, 1000.0f);
-	scene.mainCamera.position = Vector3(0.0f, 50.0f, -80.0f);
-	scene.mainCamera.LookAt(Vector3::Zero);
+	scene.mainCamera.position = Vector3(-10.0f, 30.0f, -30.0f);
+	scene.mainCamera.LookAt(Vector3(-10.0f, 30.0f, 0.0f));
 	scene.mainCamera.ExtractFrustumPlanes();
 }
 
@@ -402,6 +486,9 @@ void SetShaders()
 	cubeMappingShader.CreateEffect();
 
 	terrainShader.CreateEffect();
+
+	colorPickerSLShader.CreateEffect();
+	colorPickerHueShader.CreateEffect();
 }
 
 void SetMaterials()
@@ -478,7 +565,6 @@ void SetMaterials()
 
 void SetTerrain()
 {	
-	printf("SetTerrain()\n");
 	terrain.LoadFromHeightMap("./Textures/heightMap257_bit16.raw", 257);
 	terrain.BuildTerrain(200, 20, 4);
 	terrain.CalculateNormals();
@@ -490,10 +576,6 @@ void SetTerrain()
 	terrain.SetMtlParameters(30.0f, 30.0f);
 
 	scene.AddTerrain(&terrain);
-
-	//terrainRO = RenderableObject(terrain, Diffuse, mtlTerrain);
-	//terrainRO.displayMode = WireFrame;
-	//scene.AddObject(&terrainRO);
 }
 
 void SetMeshes()
@@ -503,7 +585,7 @@ void SetMeshes()
 	cube.CalculateTangents();
 	cube.CalculateBitangents();
 	cube.Build(XYZ_UV_TBN);
-	//cube.position = Vector3(-10, 20, 0);
+	cube.position = Vector3(-10, 20, 0);
 
 	cubie = RenderableObject(cube, Diffuse, mtlBrickD);
 	scene.AddObject(&cubie);
@@ -536,11 +618,6 @@ void SetMeshes()
 
 	teapotRO = RenderableObject(teapot, CubeEM, mtlCubeMap);
 	scene.AddObject(&teapotRO);
-
-	/*teapot.position = Vector3(-8, 0, 0);
-	irrTeapotRO = RenderableObject(teapot, IrrEM, mtlCubeMap);
-	scene.AddObject(&irrTeapotRO);*/
-
 }
 
 void SetLights()
@@ -571,9 +648,8 @@ void SetSky()
 {
 	scene.SetAmbientLight(Vector3(1.0f, 1.0f, 1.0f), 0.2f);
 
-	/*
+	
 	//scene.SetSkyDome("./Textures/Skydome4.png");
-	scene.SetAmbientLight(Vector3(1.0f, 1.0f, 1.0f), 0.2f);
 	scene.SetSkyDome();
 	scene.SetSkyColor(SkyDomeColor(0xff292A46, 0xff111217, 0xff111217), 
 		SkyDomeColor(0xff908E7E, 0xffF47413, 0xffE88877), 
@@ -582,11 +658,11 @@ void SetSky()
 	scene.SetCloud();
 	//scene.SetCloudDome("./Textures/cloud.png", 200.0f);
 
-	DayTime::SetTimeScale(3600);
+	DayTime::SetTimeScale(1);
 	//DayTime::SetDayTime(0, 0, 0);
-	*/
 	
-	scene.SetSkyBox("./Textures/Sunny1_right.jpg", "./Textures/Sunny1_left.jpg", "./Textures/Sunny1_up.jpg", "./Textures/Sunny1_down.jpg", "./Textures/Sunny1_front.jpg", "./Textures/Sunny1_back.jpg", 500.0f);
+	
+	//scene.SetSkyBox("./Textures/Sunny1_right.jpg", "./Textures/Sunny1_left.jpg", "./Textures/Sunny1_up.jpg", "./Textures/Sunny1_down.jpg", "./Textures/Sunny1_front.jpg", "./Textures/Sunny1_back.jpg", 500.0f);
 }
 
 

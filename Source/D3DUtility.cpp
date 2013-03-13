@@ -48,6 +48,10 @@ int InitD3D(HINSTANCE hInstance, bool windowed, int screenWidth, int screenHeigh
 		MessageBox(0, "CreateWindow() - FAILED", 0, 0);
 		return 0;
 	}
+	int winWidth = screenWidth + 2*GetSystemMetrics(SM_CXFIXEDFRAME);
+	int winHeight = screenHeight + GetSystemMetrics(SM_CYCAPTION) + 2*GetSystemMetrics(SM_CYFIXEDFRAME);
+	SetWindowPos(hWnd, NULL, 0, 0, winWidth, winHeight, SWP_NOMOVE | SWP_NOZORDER);
+
 	ShowWindow(hWnd, SW_NORMAL);
 	UpdateWindow(hWnd);
 
@@ -75,8 +79,10 @@ int InitD3D(HINSTANCE hInstance, bool windowed, int screenWidth, int screenHeigh
 	ZeroMemory(&d3dpp,sizeof(d3dpp));
 	d3dpp.Windowed					= windowed;
 	d3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
-	d3dpp.BackBufferWidth			= d3ddm.Width;
-	d3dpp.BackBufferHeight			= d3ddm.Height;
+	/*d3dpp.BackBufferWidth			= d3ddm.Width;
+	d3dpp.BackBufferHeight			= d3ddm.Height;*/
+	d3dpp.BackBufferWidth			= screenWidth;
+	d3dpp.BackBufferHeight			= screenHeight;
 	d3dpp.BackBufferFormat			= d3ddm.Format;
 	d3dpp.MultiSampleType			= multisample;
 	d3dpp.MultiSampleQuality		= multisampleQuality;
@@ -144,6 +150,14 @@ void CreateVB(IDirect3DDevice9* d3dDevice,IDirect3DVertexBuffer9** vb, void* ver
 		case XYZ_UV_TBN:
 			sizeofVertex = 56;
 			vertexFVF = D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_NORMAL;
+			break;
+		case XYZRHW_UV:
+			sizeofVertex = 24;
+			vertexFVF = D3DFVF_XYZRHW | D3DFVF_TEX1;
+			break;
+		case XYZRHW_D:
+			sizeofVertex = sizeof(VertexXYZRHWD);
+			vertexFVF = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
 			break;
 		default:
 			break;
@@ -238,4 +252,95 @@ void CreateCubeTextureFromFile(IDirect3DCubeTexture9 *&cubeTex, int cubeTexSize,
 	D3DXLoadSurfaceFromFile(cubeTexSurf, NULL, NULL, filenameNZ.c_str(), NULL, D3DX_DEFAULT, 0, NULL);
 
 	SAFE_RELEASE(cubeTexSurf);
+}
+
+
+wchar_t* str2wstr(const char *str)
+{
+	int length = strlen(str)+1;
+	wchar_t *t = (wchar_t*)malloc(sizeof(wchar_t)*length);
+	memset(t,0,length*sizeof(wchar_t));
+	MultiByteToWideChar(CP_ACP,0,str,strlen(str),t,length);
+	return t;
+}
+
+D3DXCOLOR HSL2RGB(Vector3 hsl)
+{
+	float h = hsl.x;
+	float s = hsl.y;
+	float l = hsl.z;
+	
+	if(s == 0){
+		return D3DXCOLOR(l, l, l, 1.0f);
+	}
+	
+	float v1, v2;
+	if(l < 0.5f)
+		v2 = l*(1 + s);
+	else
+		v2 = (l + s) - s*l;
+	v1 = 2*l - v2;
+	
+	float r = Hue2RGB(v1, v2, h + 1.0f/3.0f);
+	float g = Hue2RGB(v1, v2, h);
+	float b = Hue2RGB(v1, v2, h - 1.0f/3.0f);
+
+	return D3DXCOLOR(r, g, b, 1.0f);
+}
+
+float Hue2RGB(float v1, float v2, float vh)
+{
+	if(vh < 0)
+		vh = vh + 1;
+	if(vh > 1)
+		vh = vh - 1;
+	
+	if(6.0f*vh < 1)
+		return v1 + (v2 - v1)*6.0f*vh;
+	if(2.0f*vh < 1)
+		return v2;
+	if(3.0f*vh < 2)
+		return v1 + (v2 - v1)*(2.0f/3.0f - vh)*6.0f;
+		
+	return v1;
+}
+
+
+Vector3 RGB2HSL(D3DXCOLOR rgb)
+{
+	float h,s,l;
+
+	float vMin = (rgb.r < rgb.g) ? ((rgb.r < rgb.b)?rgb.r:rgb.b) : ((rgb.g < rgb.b)?rgb.g:rgb.b);
+	float vMax = (rgb.r > rgb.g) ? ((rgb.r > rgb.b)?rgb.r:rgb.b) : ((rgb.g > rgb.b)?rgb.g:rgb.b);
+	float delMax = vMax - vMin;
+
+	l = (vMin + vMax)/2.0f;
+	if(delMax == 0){
+		h = 0;
+		s = 0;
+	}
+	else{
+		if(l < 0.5f)
+			s = delMax / (vMax + vMin);
+		else
+			s = delMax / (2 - vMax -vMin);
+
+		float delR = ((vMax - rgb.r)/6.0f + delMax/2.0f)/delMax;
+		float delG = ((vMax - rgb.g)/6.0f + delMax/2.0f)/delMax;
+		float delB = ((vMax - rgb.b)/6.0f + delMax/2.0f)/delMax;
+
+		if(rgb.r == vMax)
+			h = delB - delG;
+		else if(rgb.g == vMax)
+			h = 1.0f/3.0f + delR - delB;
+		else if(rgb.b == vMax)
+			h = 2.0f/3.0f + delG - delR;
+
+		if(h < 0)
+			h += 1;
+		if(h > 1)
+			h -= 1;
+	}
+
+	return Vector3(h, s, l);
 }

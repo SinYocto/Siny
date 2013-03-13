@@ -5,6 +5,7 @@
 #include"PointLight.h"
 #include"Input.h"
 #include"IrradianceEM.h"
+#include"GUI.h"
 
 HWND HWnd = NULL;
 IDirect3D9 *D3D = NULL;
@@ -31,9 +32,19 @@ Shader cubeMappingShader("./Shaders/CubeMapping.fx");
 
 Shader terrainShader("./Shaders/Terrain.fx");
 
+Shader colorPickerSLShader("./Shaders/ColorPickerSL.fx");
+Shader colorPickerHueShader("./Shaders/ColorPickerHue.fx");
+
 
 DirectionalLightData directionalLightsData[MAX_DIRECTIONAL_LIGHTS];
 PointLightData pointLightsData[MAX_POINT_LIGHTS];
+
+LabelStyle defaultLabelStyle("ºÚÌå", 8, 17, 100, WHITE, DT_CENTER | DT_VCENTER);
+ButtonStyle defaultButtonStyle(&defaultLabelStyle, "./Textures/GUI/buttonNormal.tga", "./Textures/GUI/buttonHover.tga", "./Textures/GUI/buttonActive.tga");
+SliderStyle defaultSliderStyle("./Textures/GUI/sliderBar.tga", "./Textures/GUI/sliderThumbNormal.tga", "./Textures/GUI/sliderThumbHover.tga", "./Textures/GUI/sliderThumbActive.tga", 0.5f);
+ToggleStyle defaultToggleStyle("./Textures/GUI/toggleOffNormal.tga", "./Textures/GUI/toggleOffHover.tga", "./Textures/GUI/toggleOnNormal.tga", "./Textures/GUI/toggleOnHover.tga");
+ListBoxStyle defaultListBoxStyle(&defaultLabelStyle, "./Textures/GUI/listBoxButtonNormal.tga", "./Textures/GUI/listBoxButtonHover.tga", "./Textures/GUI/listBoxItemNormal.tga", "./Textures/GUI/listBoxItemHover.tga");
+GUI GUISystem;
 
 
 IrradianceEM irrEM;

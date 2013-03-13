@@ -32,6 +32,8 @@ private:
 	D3DXMATRIX UVTransformMatrix();
 	void BuildChunks(QuadTreeNode *node, int depth);
 
+public:
+	int culledChunks;
 private:
 	IDirect3DTexture9* colorTexes[4];
 	IDirect3DTexture9 *splatMapTex;
